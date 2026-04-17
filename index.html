@@ -1,431 +1,1044 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMM Market Analysis v3.3 - Ultra Full</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMM Market Analysis v3.4</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f0fdf4;
+      color: #111827;
+      min-height: 100vh;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f0fdf4; }
+    ::-webkit-scrollbar-thumb { background: #86efac; border-radius: 10px; }
+
+    .header {
+      background: linear-gradient(135deg, #14532d 0%, #15803d 50%, #16a34a 100%);
+      padding: 28px 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(21,128,61,0.3);
+    }
+    .header-inner { max-width: 680px; margin: 0 auto; }
+    .header-brand { font-size: 10px; font-weight: 800; letter-spacing: 3px; opacity: 0.65; color: #fff; margin-bottom: 4px; }
+    .header-title { font-size: 22px; font-weight: 900; color: #fff; line-height: 1.1; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px; font-weight: 500; }
+    .tab-bar { display: flex; gap: 6px; margin-top: 20px; }
+    .tab-btn {
+      flex: 1; padding: 13px 10px; border: none;
+      border-radius: 10px 10px 0 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 12px; letter-spacing: 0.5px;
+      cursor: pointer; transition: all 0.25s;
+    }
+    .tab-btn.active { background: #f0fdf4; color: #15803d; }
+    .tab-btn.inactive { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); }
+    .tab-btn.inactive:hover { background: rgba(255,255,255,0.2); }
+
+    .main { max-width: 680px; margin: 0 auto; padding: 20px 16px 80px; }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1.5px solid #e5e7eb;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+    .section-header {
+      font-size: 10px; font-weight: 800; letter-spacing: 1.2px;
+      padding-bottom: 8px; margin-bottom: 12px;
+      border-bottom: 1.5px solid currentColor;
+      opacity: 0.9;
+    }
+
+    .field { margin-bottom: 12px; }
+    .field label {
+      display: block; font-size: 11px; font-weight: 700;
+      color: #374151; margin-bottom: 4px; letter-spacing: 0.3px;
+    }
+    .field label.error { color: #dc2626; }
+    .field input, .field textarea {
+      width: 100%; padding: 9px 12px;
+      border-radius: 8px; border: 1.5px solid #e5e7eb;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 500; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fdfdfd;
+      color: #111827;
+    }
+    .field input:focus, .field textarea:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.1);
+    }
+    .field input.error { border-color: #fca5a5; background: #fffafa; }
+    .field textarea { resize: vertical; min-height: 62px; line-height: 1.5; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-5 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+    .btn-primary {
+      width: 100%; padding: 15px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 15px; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,0.35);
+      transition: all 0.2s; letter-spacing: 0.3px;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(22,163,74,0.4); }
+    .btn-primary:disabled { background: #d1d5db; box-shadow: none; cursor: not-allowed; transform: none; }
+    .btn-pdf {
+      width: 100%; padding: 13px; border-radius: 10px; border: none;
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 14px; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(30,64,175,0.3);
+      transition: all 0.2s; margin-bottom: 16px;
+    }
+    .btn-pdf:hover { transform: translateY(-1px); }
+    .btn-danger {
+      padding: 9px 16px; border-radius: 8px;
+      border: 1.5px solid #fca5a5; background: #fff;
+      color: #dc2626; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 13px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-danger:hover { background: #fee2e2; }
+    .btn-back {
+      background: none; border: none; color: #15803d;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 13px; cursor: pointer;
+      padding: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 6px;
+    }
+    .btn-add {
+      padding: 9px 18px; border-radius: 8px;
+      border: 1.5px solid #16a34a; background: #f0fdf4;
+      color: #16a34a; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 13px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-add:hover { background: #dcfce7; }
+
+    .toggle-btn {
+      padding: 6px 14px; border-radius: 20px; font-size: 12px;
+      cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600; transition: all 0.2s; border: 1.5px solid;
+    }
+    .check-pill {
+      padding: 5px 12px; border-radius: 20px; font-size: 11px;
+      cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600; transition: all 0.2s; border: 1.5px solid;
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .badge-green { background: #d1fae5; color: #065f46; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-gray { background: #f3f4f6; color: #374151; }
+
+    .wilayah-card {
+      border: 1.5px solid #e5e7eb; border-radius: 12px;
+      margin-bottom: 14px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      transition: border-color 0.2s;
+    }
+    .wilayah-card.error-border { border-color: #fca5a5; }
+    .wilayah-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; cursor: pointer; border-bottom: 1.5px solid transparent;
+      transition: background 0.2s;
+    }
+    .wilayah-header.open { background: #f0fdf4; border-bottom-color: #d1fae5; }
+    .wilayah-header.closed { background: #f9fafb; }
+    .wilayah-body { padding: 16px; background: #fff; }
+    .w-num {
+      color: #fff; border-radius: 7px; padding: 4px 10px;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+    }
+
+    .box-green { background: #f0fdf4; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .box-red { background: #fef2f2; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .box-blue { background: #eff6ff; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .box-amber { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .box-purple { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+
+    .rekap-card {
+      background: #fff; padding: 18px; border-radius: 14px;
+      border: 1.5px solid #e5e7eb; cursor: pointer;
+      transition: all 0.2s; margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .rekap-card:hover { border-color: #16a34a; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(22,163,74,0.12); }
+
+    .detail-wilayah {
+      border: 1px solid #e5e7eb; border-radius: 10px;
+      margin-bottom: 10px; overflow: hidden;
+    }
+    .detail-wilayah-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 14px; cursor: pointer; transition: background 0.2s;
+    }
+    .detail-wilayah-header.open { background: #f0fdf4; border-bottom: 1px solid #d1fae5; }
+    .detail-wilayah-header.closed { background: #f9fafb; }
+    .detail-wilayah-body { padding: 14px; background: #fff; }
+
+    .search-box {
+      width: 100%; padding: 11px 16px 11px 40px;
+      border-radius: 10px; border: 1.5px solid #e5e7eb;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 500; outline: none;
+      background: #fff; color: #111827;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 14px;
+    }
+    .search-box:focus { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+    .search-wrap { position: relative; }
+    .search-icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      font-size: 14px; pointer-events: none; color: #9ca3af;
+    }
+
+    .stats-bar {
+      background: linear-gradient(135deg, #0f766e, #0d9488);
+      border-radius: 14px; padding: 18px; color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .detail-header {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      border-radius: 14px; padding: 20px; color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .kom-input {
+      width: 100%; padding: 7px 10px;
+      border-radius: 7px; border: 1.5px solid #d1fae5;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px; font-weight: 500; outline: none;
+      background: #fff; margin-bottom: 6px;
+      transition: border-color 0.2s;
+    }
+    .kom-input:focus { border-color: #16a34a; }
+
+    .toast {
+      background: #d1fae5; border: 1px solid #6ee7b7;
+      border-radius: 10px; padding: 12px 16px;
+      color: #065f46; font-weight: 700; text-align: center;
+      margin-bottom: 16px; font-size: 13px;
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Star Rating */
+    .star-row { display: flex; gap: 6px; }
+    .star-btn {
+      font-size: 22px; background: none; border: none;
+      cursor: pointer; line-height: 1; padding: 2px;
+      transition: transform 0.15s;
+    }
+    .star-btn:hover { transform: scale(1.2); }
+
+    @media (max-width: 480px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .header-title { font-size: 18px; }
+    }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
+  <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-        // --- KONFIGURASI & KONSTANTA ---
-        const FASE = ["Pengolahan Lahan", "Vegetatif", "Generatif", "Panen"];
-        const STORAGE_KEY = "smm-market-v3-ultra-final";
+    const FASE = ["Pengolahan Lahan", "Vegetatif", "Generatif", "Panen"];
+    const STORAGE_KEY = "smm-market-v3-ultra-final";
 
-        const emptyWilayah = () => ({
-          _id: Date.now() + Math.random(),
-          namaWilayah: "",
-          p1: "", p2: "", p3: "", p4: "", p5: "",
-          produkTerjual: "",
-          fase: [],
-          jumlahPetani: "", 
-          jumlahKios: "", 
-          dayaBeli: "", 
-          catatanWilayah: "",
-          kendalaUtama: "", 
-          kendalaDistribusi: "", 
-          kendalaKompetitor: "", 
-          kendalaProduk: "",
-          produk1: "", alasan1: "", 
-          produk2: "", alasan2: "", 
-          produk3: "", alasan3: "",
-          kebutuhanBelumAda: ""
-        });
+    const emptyWilayah = () => ({
+      _id: Date.now() + Math.random(),
+      namaWilayah: "",
+      p1:"", p2:"", p3:"", p4:"", p5:"",
+      produkTerjual: "",
+      fase: [],
+      jumlahPetani: "", jumlahKios: "", dayaBeli: "", catatanWilayah: "",
+      kendalaUtama: "", kendalaDistribusi: "", kendalaKompetitor: "", kendalaProduk: "",
+      produk1:"", alasan1:"", produk2:"", alasan2:"", produk3:"", alasan3:"",
+      kebutuhanBelumAda: ""
+    });
 
-        const emptyForm = () => ({
-          nama: "", 
-          periode: "", 
-          kabupaten: "",
-          wilayahData: [emptyWilayah()]
-        });
+    const emptyForm = () => ({
+      nama:"", periode:"", kabupaten:"", wilayahData:[emptyWilayah()],
+      targetKunjungan:"", realisasiKunjungan:"",
+      selfScore: 0,
+      catatanDiri: "",
+      rencanaTindakLanjut: ""
+    });
 
-        // --- FUNGSI DATA ---
-        async function loadEntries() {
-          try {
-            const d = localStorage.getItem(STORAGE_KEY);
-            return d ? JSON.parse(d) : [];
-          } catch { return []; }
-        }
+    function loadEntries() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; }
+    }
+    function saveEntries(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
 
-        async function saveEntries(list) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-        }
+    function Field({ label, value, onChange, placeholder, required }) {
+      const hasError = required && !value.trim();
+      return (
+        <div className="field">
+          <label className={hasError ? "error" : ""}>{label}{required ? " *" : ""}</label>
+          <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+            className={hasError ? "error" : ""}
+            onFocus={e => { if (!hasError) e.target.style.borderColor="#16a34a"; }}
+            onBlur={e => { if (!hasError) e.target.style.borderColor="#e5e7eb"; }} />
+        </div>
+      );
+    }
 
-        // --- KOMPONEN UI DASAR ---
-        function Badge({ children, color = "green" }) {
-          const bg = { green: "#d1fae5", yellow: "#fef3c7", red: "#fee2e2", blue: "#dbeafe", gray: "#f3f4f6" };
-          const fg = { green: "#065f46", yellow: "#92400e", red: "#991b1b", blue: "#1e40af", gray: "#374151" };
-          return <span style={{ padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: bg[color], color: fg[color] }}>{children}</span>;
-        }
+    function Area({ label, value, onChange, placeholder }) {
+      return (
+        <div className="field">
+          <label>{label}</label>
+          <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+            onFocus={e => e.target.style.borderColor="#16a34a"}
+            onBlur={e => e.target.style.borderColor="#e5e7eb"} />
+        </div>
+      );
+    }
 
-        function CheckGroup({ options, selected, onChange, color = "#16a34a" }) {
-          return (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {options.map(opt => {
-                const active = selected.includes(opt);
-                return (
-                  <button key={opt} onClick={() => onChange(active ? selected.filter(x => x !== opt) : [...selected, opt])}
-                    style={{ 
-                        padding: "4px 11px", 
-                        borderRadius: 20, 
-                        fontSize: 12, 
-                        cursor: "pointer", 
-                        border: `1.5px solid ${active ? color : "#d1d5db"}`, 
-                        background: active ? color : "#fff", 
-                        color: active ? "#fff" : "#374151", 
-                        fontWeight: active ? 600 : 400,
-                        transition: "all 0.2s"
-                    }}>
-                    {opt}
-                  </button>
-                );
-              })}
+    function CheckGroup({ options, selected, onChange, color="#16a34a" }) {
+      return (
+        <div style={{display:"flex", flexWrap:"wrap", gap:6}}>
+          {options.map(opt => {
+            const active = selected.includes(opt);
+            return (
+              <button key={opt} className="check-pill"
+                onClick={() => onChange(active ? selected.filter(x=>x!==opt) : [...selected, opt])}
+                style={{ borderColor: active ? color : "#d1d5db", background: active ? color : "#fff", color: active ? "#fff" : "#374151" }}>
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
+    function DayaBeli({ value, onChange }) {
+      const opts = [["Tinggi","#16a34a"],["Sedang","#d97706"],["Rendah","#dc2626"]];
+      return (
+        <div style={{display:"flex", gap:8, flexWrap:"wrap"}}>
+          {opts.map(([lvl, clr]) => (
+            <button key={lvl} className="toggle-btn"
+              onClick={() => onChange(value===lvl ? "" : lvl)}
+              style={{ borderColor: value===lvl ? clr : "#d1d5db", background: value===lvl ? clr : "#fff", color: value===lvl ? "#fff" : "#374151" }}>
+              {lvl}
+            </button>
+          ))}
+        </div>
+      );
+    }
+
+    function StarRating({ value, onChange }) {
+      const [hover, setHover] = useState(0);
+      const labels = ["","Sangat Kurang","Kurang","Cukup","Baik","Sangat Baik"];
+      return (
+        <div>
+          <div className="star-row">
+            {[1,2,3,4,5].map(n => (
+              <button key={n} className="star-btn"
+                onClick={() => onChange(value===n ? 0 : n)}
+                onMouseEnter={() => setHover(n)}
+                onMouseLeave={() => setHover(0)}>
+                {n <= (hover || value) ? "⭐" : "☆"}
+              </button>
+            ))}
+          </div>
+          {(hover || value) > 0 && (
+            <div style={{fontSize:12, color:"#6b7280", marginTop:4, fontWeight:600}}>
+              {labels[hover || value]}
             </div>
-          );
-        }
+          )}
+        </div>
+      );
+    }
 
-        function Field({ label, value, onChange, placeholder, required }) {
-          const isError = required && !value.trim();
-          return (
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: isError ? "#dc2626" : "#374151", display: "block", marginBottom: 3 }}>
-                {label} {required && "*"}
-              </label>
-              <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-                style={{ 
-                    width: "100%", 
-                    padding: "7px 11px", 
-                    borderRadius: 7, 
-                    border: `1.5px solid ${isError ? "#fca5a5" : "#d1d5db"}`, 
-                    fontSize: 13, 
-                    outline: "none", 
-                    boxSizing: "border-box",
-                    background: isError ? "#fffafb" : "#fff"
-                }}
-                onFocus={e => !isError && (e.target.style.border = "1.5px solid #16a34a")}
-                onBlur={e => !isError && (e.target.style.border = "1.5px solid #d1d5db")} />
+    function WilayahCard({ data, index, onChange, onRemove, canRemove }) {
+      const [open, setOpen] = useState(true);
+      const s = k => v => onChange({...data, [k]: v});
+      const isErr = !data.namaWilayah.trim();
+
+      return (
+        <div className={`wilayah-card${isErr ? " error-border" : ""}`}>
+          <div className={`wilayah-header ${open?"open":"closed"}`} onClick={() => setOpen(o=>!o)}>
+            <div style={{display:"flex", alignItems:"center", gap:10}}>
+              <span className="w-num" style={{background: isErr?"#dc2626":"#15803d"}}>W{index+1}</span>
+              <span style={{fontSize:14, fontWeight:700, color: data.namaWilayah?"#111827":"#9ca3af"}}>
+                {data.namaWilayah || "Belum dinamai ⚠️"}
+              </span>
             </div>
-          );
-        }
-
-        function Area({ label, value, onChange, placeholder }) {
-          return (
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 3 }}>{label}</label>
-              <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={2}
-                style={{ 
-                    width: "100%", 
-                    padding: "7px 11px", 
-                    borderRadius: 7, 
-                    border: "1.5px solid #d1d5db", 
-                    fontSize: 13, 
-                    outline: "none", 
-                    resize: "vertical", 
-                    boxSizing: "border-box", 
-                    fontFamily: "inherit" 
-                }}
-                onFocus={e => e.target.style.border = "1.5px solid #16a34a"}
-                onBlur={e => e.target.style.border = "1.5px solid #d1d5db"} />
+            <div style={{display:"flex", gap:8, alignItems:"center"}}>
+              {canRemove && <button onClick={e=>{e.stopPropagation();onRemove();}}
+                style={{background:"#fee2e2",border:"none",borderRadius:6,padding:"4px 9px",cursor:"pointer",color:"#dc2626",fontSize:12,fontWeight:700}}>✕</button>}
+              <span style={{color:"#9ca3af",fontSize:12}}>{open?"▲":"▼"}</span>
             </div>
-          );
-        }
+          </div>
 
-        // --- KOMPONEN KARTU WILAYAH (DETAIL) ---
-        function WilayahCard({ data, index, onChange, onRemove, canRemove }) {
-          const [open, setOpen] = useState(true);
-          const set = (key) => (val) => onChange({ ...data, [key]: val });
-          const dbc = (d) => d === "Tinggi" ? "#16a34a" : d === "Sedang" ? "#d97706" : "#dc2626";
-          const isError = !data.namaWilayah.trim();
+          {open && (
+            <div className="wilayah-body">
+              <Field label="📍 Nama Kecamatan / Wilayah" value={data.namaWilayah} onChange={s("namaWilayah")} placeholder="Wajib diisi" required />
 
-          return (
-            <div style={{ border: `1.5px solid ${isError ? "#fca5a5" : "#e5e7eb"}`, borderRadius: 12, marginBottom: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", background: "#fff" }}>
-              <div onClick={() => setOpen(o => !o)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: open ? "#f0fdf4" : "#f9fafb", cursor: "pointer", borderBottom: open ? "1.5px solid #d1fae5" : "none" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ background: isError ? "#dc2626" : "#16a34a", color: "#fff", borderRadius: 7, padding: "3px 10px", fontSize: 12, fontWeight: 800 }}>W{index + 1}</div>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: data.namaWilayah ? "#111827" : "#9ca3af" }}>
-                    {data.namaWilayah || "Wilayah Belum Dinamai *"}
-                  </span>
+              <div className="box-green">
+                <div className="section-header" style={{color:"#15803d"}}>🌾 POTENSI WILAYAH</div>
+                <div className="field">
+                  <label>5 Komoditas Utama</label>
+                  <div className="grid-5">
+                    {[1,2,3,4,5].map(n => (
+                      <input key={n} value={data[`p${n}`]} onChange={e=>s(`p${n}`)(e.target.value)}
+                        placeholder={`Komoditas ${n}`} className="kom-input" />
+                    ))}
+                  </div>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {canRemove && (
-                    <button onClick={e => { e.stopPropagation(); onRemove(); }}
-                      style={{ background: "#fee2e2", border: "none", borderRadius: 6, padding: "4px 9px", cursor: "pointer", color: "#dc2626", fontSize: 12, fontWeight: 700 }}>✕</button>
-                  )}
-                  <span style={{ color: "#6b7280", fontSize: 14 }}>{open ? "▲" : "▼"}</span>
+                <div className="box-amber">
+                  <Area label="📦 Produk SMM Terjual Periode Ini" value={data.produkTerjual} onChange={s("produkTerjual")} placeholder="Daftar produk SMM yang laku, qty, kios penjual..." />
                 </div>
+                <div className="field" style={{marginBottom:12}}>
+                  <label>Fase Tanam</label>
+                  <CheckGroup options={FASE} selected={data.fase} onChange={s("fase")} color="#0891b2" />
+                </div>
+                <div className="grid-2">
+                  <Field label="Petani Aktif (est.)" value={data.jumlahPetani} onChange={s("jumlahPetani")} placeholder="cth: 150 orang" />
+                  <Field label="Kios / Toko (est.)" value={data.jumlahKios} onChange={s("jumlahKios")} placeholder="cth: 8 kios" />
+                </div>
+                <div className="field" style={{marginBottom:8}}>
+                  <label>Daya Beli Petani</label>
+                  <DayaBeli value={data.dayaBeli} onChange={s("dayaBeli")} />
+                </div>
+                <Area label="Catatan Potensi" value={data.catatanWilayah} onChange={s("catatanWilayah")} placeholder="Kondisi musim, infrastruktur, potensi lahan..." />
               </div>
 
-              {open && (
-                <div style={{ padding: 16 }}>
-                  <Field label="📍 Nama Kecamatan / Wilayah *" value={data.namaWilayah} onChange={set("namaWilayah")} placeholder="Wajib diisi" required />
+              <div className="box-red">
+                <div className="section-header" style={{color:"#b91c1c"}}>⚠️ KENDALA</div>
+                <Area label="Kendala Utama Petani" value={data.kendalaUtama} onChange={s("kendalaUtama")} placeholder="cth: Modal terbatas, kurang edukasi" />
+                <Area label="Kendala Distribusi / Akses" value={data.kendalaDistribusi} onChange={s("kendalaDistribusi")} placeholder="cth: Jalan rusak, kios jauh dari lahan" />
+                <Area label="Kendala Kompetitor" value={data.kendalaKompetitor} onChange={s("kendalaKompetitor")} placeholder="cth: Merek lain lebih murah, loyalitas lama" />
+                <Area label="Kendala Produk SMM" value={data.kendalaProduk} onChange={s("kendalaProduk")} placeholder="cth: Stok kosong, kemasan kurang praktis" />
+              </div>
 
-                  <div style={{ background: "#f0fdf4", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: "#15803d", marginBottom: 10, letterSpacing: 0.8 }}>🌾 POTENSI WILAYAH</div>
-                    
-                    <div style={{ marginBottom: 10 }}>
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>5 Komoditas Utama</label>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 8px" }}>
-                        {[1, 2, 3, 4, 5].map(n => (
-                          <input key={n} value={data[`p${n}`]} onChange={e => set(`p${n}`)(e.target.value)} placeholder={`Komoditas ${n}`}
-                            style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: "1.5px solid #d1d5db", fontSize: 12, marginBottom: 6, outline: "none", boxSizing: "border-box" }} />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "8px", border: "1px solid #fef3c7", marginBottom: "12px" }}>
-                      <Area label="📦 Produk SMM Terjual Periode Ini" value={data.produkTerjual} onChange={set("produkTerjual")} placeholder="Daftar produk SMM yang laku..." />
-                    </div>
-
-                    <div style={{ marginBottom: 10 }}>
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>Fase Tanam</label>
-                      <CheckGroup options={FASE} selected={data.fase} onChange={set("fase")} color="#0891b2" />
-                    </div>
-                    
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                      <Field label="Petani Aktif (est.)" value={data.jumlahPetani} onChange={set("jumlahPetani")} placeholder="cth: 150" />
-                      <Field label="Kios / Toko (est.)" value={data.jumlahKios} onChange={set("jumlahKios")} placeholder="cth: 8" />
-                    </div>
-
-                    <div style={{ marginBottom: 10 }}>
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>Daya Beli Petani</label>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        {["Tinggi", "Sedang", "Rendah"].map(lvl => (
-                          <button key={lvl} onClick={() => set("dayaBeli")(lvl)} style={{
-                            padding: "5px 14px", borderRadius: 7, cursor: "pointer", fontSize: 12,
-                            border: `1.5px solid ${data.dayaBeli === lvl ? dbc(lvl) : "#d1d5db"}`,
-                            background: data.dayaBeli === lvl ? dbc(lvl) : "#fff",
-                            color: data.dayaBeli === lvl ? "#fff" : "#374151",
-                            fontWeight: data.dayaBeli === lvl ? 700 : 400
-                          }}>{lvl}</button>
-                        ))}
-                      </div>
-                    </div>
-                    <Area label="Catatan Potensi" value={data.catatanWilayah} onChange={set("catatanWilayah")} />
+              <div className="box-blue">
+                <div className="section-header" style={{color:"#1d4ed8"}}>🧪 REKOMENDASI PRODUK</div>
+                {[1,2,3].map(n => (
+                  <div key={n} className="grid-2" style={{marginBottom:6}}>
+                    <Field label={`Produk Prioritas ${n}`} value={data[`produk${n}`]} onChange={s(`produk${n}`)} placeholder="Nama produk" />
+                    <Field label="Alasan" value={data[`alasan${n}`]} onChange={s(`alasan${n}`)} placeholder="Kenapa cocok?" />
                   </div>
+                ))}
+                <Area label="💡 Kebutuhan Belum Ada Produknya" value={data.kebutuhanBelumAda} onChange={s("kebutuhanBelumAda")} placeholder="cth: Pupuk granul slow-release untuk padi" />
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
 
-                  <div style={{ background: "#fef2f2", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: "#b91c1c", marginBottom: 10, letterSpacing: 0.8 }}>⚠️ KENDALA</div>
-                    <Area label="Kendala Utama Petani" value={data.kendalaUtama} onChange={set("kendalaUtama")} />
-                    <Area label="Kendala Distribusi" value={data.kendalaDistribusi} onChange={set("kendalaDistribusi")} />
-                    <Area label="Kendala Kompetitor" value={data.kendalaKompetitor} onChange={set("kendalaKompetitor")} />
-                    <Area label="Kendala Produk SMM" value={data.kendalaProduk} onChange={set("kendalaProduk")} />
-                  </div>
+    function FormView({ onSave }) {
+      const [form, setForm] = useState(emptyForm());
+      const [saving, setSaving] = useState(false);
+      const [saved, setSaved] = useState(false);
 
-                  <div style={{ background: "#eff6ff", borderRadius: 8, padding: 12 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: "#1d4ed8", marginBottom: 10, letterSpacing: 0.8 }}>🧪 REKOMENDASI PRODUK</div>
-                    {[1, 2, 3].map(n => (
-                      <div key={n} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 6 }}>
-                        <Field label={`Produk Prioritas ${n}`} value={data[`produk${n}`]} onChange={set(`produk${n}`)} placeholder="Nama produk" />
-                        <Field label="Alasan" value={data[`alasan${n}`]} onChange={set(`alasan${n}`)} placeholder="Kenapa cocok?" />
-                      </div>
-                    ))}
-                    <Area label="💡 Kebutuhan Belum Ada" value={data.kebutuhanBelumAda} onChange={set("kebutuhanBelumAda")} />
-                  </div>
+      const sf = k => v => setForm(f => ({...f, [k]: v}));
+      const isInvalid = !form.nama.trim() || form.wilayahData.some(w => !w.namaWilayah.trim());
+
+      const handleSave = () => {
+        if (isInvalid) return;
+        setSaving(true);
+        setTimeout(() => {
+          const entry = {...form, id: Date.now(), createdAt: new Date().toISOString()};
+          const list = loadEntries();
+          list.unshift(entry);
+          saveEntries(list);
+          setForm(emptyForm());
+          setSaving(false);
+          setSaved(true);
+          setTimeout(() => setSaved(false), 3000);
+          onSave();
+        }, 400);
+      };
+
+      return (
+        <div>
+          {saved && <div className="toast">✅ Laporan berhasil disimpan ke Rekap!</div>}
+
+          <div className="card">
+            <div className="section-header" style={{color:"#15803d"}}>👤 IDENTITAS SALES</div>
+            <Field label="Nama Sales" value={form.nama} onChange={sf("nama")} placeholder="cth: Budi Santoso" required />
+            <div className="grid-2">
+              <Field label="Periode" value={form.periode} onChange={sf("periode")} placeholder="cth: April 2026" />
+              <Field label="Kabupaten / Kota" value={form.kabupaten} onChange={sf("kabupaten")} placeholder="cth: Subang" />
+            </div>
+          </div>
+
+          {/* KPI Section */}
+          <div className="card">
+            <div className="section-header" style={{color:"#7c3aed"}}>📊 KINERJA & EVALUASI DIRI</div>
+            <div className="grid-2">
+              <Field label="🎯 Target Kunjungan" value={form.targetKunjungan} onChange={sf("targetKunjungan")} placeholder="cth: 20 kunjungan" />
+              <Field label="✅ Realisasi Kunjungan" value={form.realisasiKunjungan} onChange={sf("realisasiKunjungan")} placeholder="cth: 18 kunjungan" />
+            </div>
+            <div className="field" style={{marginBottom:12}}>
+              <label>Penilaian Performa Diri (1–5 Bintang)</label>
+              <StarRating value={form.selfScore} onChange={sf("selfScore")} />
+            </div>
+            <Area label="📝 Catatan Evaluasi Diri" value={form.catatanDiri} onChange={sf("catatanDiri")} placeholder="Apa yang berjalan baik? Apa yang perlu diperbaiki?" />
+            <Area label="🔜 Rencana Tindak Lanjut" value={form.rencanaTindakLanjut} onChange={sf("rencanaTindakLanjut")} placeholder="Langkah konkrit periode berikutnya..." />
+          </div>
+
+          <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12}}>
+            <div style={{fontWeight:800, fontSize:13, color:"#15803d", letterSpacing:0.5}}>
+              DATA PER WILAYAH
+              <span style={{fontWeight:500, fontSize:12, color:"#6b7280", marginLeft:6}}>({form.wilayahData.length} wilayah)</span>
+            </div>
+            <button className="btn-add" onClick={() => setForm(f=>({...f, wilayahData:[...f.wilayahData, emptyWilayah()]}))}>
+              + Tambah Wilayah
+            </button>
+          </div>
+
+          {form.wilayahData.map((w,i) => (
+            <WilayahCard key={w._id} data={w} index={i} canRemove={form.wilayahData.length>1}
+              onRemove={() => setForm(f=>({...f, wilayahData:f.wilayahData.filter((_,idx)=>idx!==i)}))}
+              onChange={val => {
+                const n=[...form.wilayahData]; n[i]=val;
+                setForm(f=>({...f, wilayahData:n}));
+              }} />
+          ))}
+
+          <button className="btn-primary" onClick={handleSave} disabled={saving||isInvalid}>
+            {saving ? "⏳ Menyimpan..." : `💾 Simpan Laporan (${form.wilayahData.length} Wilayah)`}
+          </button>
+        </div>
+      );
+    }
+
+    function WilayahDetail({ w }) {
+      const [open, setOpen] = useState(false);
+      const dbColor = w.dayaBeli==="Tinggi"?"green":w.dayaBeli==="Sedang"?"yellow":w.dayaBeli==="Rendah"?"red":"gray";
+      const komoditas = [w.p1,w.p2,w.p3,w.p4,w.p5].filter(x=>x);
+
+      return (
+        <div className="detail-wilayah">
+          <div className={`detail-wilayah-header ${open?"open":"closed"}`} onClick={()=>setOpen(o=>!o)}>
+            <div style={{display:"flex", alignItems:"center", gap:8}}>
+              <span style={{fontWeight:700, fontSize:14}}>📍 {w.namaWilayah}</span>
+              {w.dayaBeli && <span className={`badge badge-${dbColor}`}>{w.dayaBeli}</span>}
+            </div>
+            <span style={{color:"#9ca3af", fontSize:12}}>{open?"▲":"▼"}</span>
+          </div>
+          {open && (
+            <div className="detail-wilayah-body">
+              {(komoditas.length>0||w.fase?.length>0||w.jumlahPetani||w.produkTerjual||w.catatanWilayah) && (
+                <div style={{marginBottom:14}}>
+                  <div style={{fontSize:10,fontWeight:800,color:"#15803d",marginBottom:8,letterSpacing:1}}>🌾 POTENSI</div>
+                  {(w.jumlahPetani||w.jumlahKios) && (
+                    <div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap"}}>
+                      {w.jumlahPetani && <div style={{background:"#f0fdf4",padding:"5px 12px",borderRadius:7,fontSize:12}}><span style={{color:"#6b7280"}}>Petani: </span><strong>{w.jumlahPetani}</strong></div>}
+                      {w.jumlahKios && <div style={{background:"#eff6ff",padding:"5px 12px",borderRadius:7,fontSize:12}}><span style={{color:"#6b7280"}}>Kios: </span><strong>{w.jumlahKios}</strong></div>}
+                    </div>
+                  )}
+                  {komoditas.length>0 && <div style={{marginBottom:8}}><div style={{fontSize:11,fontWeight:600,color:"#6b7280",marginBottom:4}}>Komoditas:</div><div style={{display:"flex",flexWrap:"wrap",gap:5}}>{komoditas.map((k,i)=><span key={i} className="badge badge-green">{k}</span>)}</div></div>}
+                  {w.fase?.length>0 && <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:8}}>{w.fase.map(f=><span key={f} className="badge badge-blue">{f}</span>)}</div>}
+                  {w.produkTerjual && <div style={{background:"#fffbeb",border:"1px solid #fde68a",borderRadius:8,padding:"10px 12px",marginBottom:8}}><div style={{fontSize:10,fontWeight:800,color:"#92400e",marginBottom:4}}>📦 PRODUK TERJUAL</div><div style={{fontSize:12,color:"#374151",lineHeight:1.6}}>{w.produkTerjual}</div></div>}
+                  {w.catatanWilayah && <div style={{fontSize:12,color:"#374151",background:"#f9fafb",padding:"8px 10px",borderRadius:7,lineHeight:1.6}}>{w.catatanWilayah}</div>}
                 </div>
               )}
-            </div>
-          );
-        }
-
-        // --- TAMPILAN UTAMA: FORM ---
-        function FormView({ onSave }) {
-          const [form, setForm] = useState(emptyForm());
-          const [saving, setSaving] = useState(false);
-
-          const isInvalid = !form.nama.trim() || form.wilayahData.some(w => !w.namaWilayah.trim());
-
-          const handleSave = async () => {
-            if (isInvalid) return alert("Mohon lengkapi Nama Sales dan semua Nama Wilayah yang ada!");
-            setSaving(true);
-            try {
-              const entry = { ...form, id: Date.now(), createdAt: new Date().toISOString() };
-              const list = await loadEntries();
-              list.unshift(entry);
-              await saveEntries(list);
-              setForm(emptyForm());
-              onSave();
-            } catch (e) { alert("Gagal: " + e.message); }
-            finally { setSaving(false); }
-          };
-
-          return (
-            <div>
-              <div style={{ background: "#fff", borderRadius: 12, padding: 16, marginBottom: 16, border: "1.5px solid #e5e7eb", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-                <Field label="Nama Sales *" value={form.nama} onChange={v => setForm({...form, nama: v})} placeholder="Wajib diisi" required />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  <Field label="Periode" value={form.periode} onChange={v => setForm({...form, periode: v})} placeholder="cth: April 2026" />
-                  <Field label="Kabupaten / Kota" value={form.kabupaten} onChange={v => setForm({...form, kabupaten: v})} placeholder="cth: Subang" />
-                </div>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <div style={{ fontWeight: 800, color: "#15803d", fontSize: 14 }}>DATA PER WILAYAH ({form.wilayahData.length})</div>
-                <button onClick={() => setForm({...form, wilayahData: [...form.wilayahData, emptyWilayah()]})} 
-                  style={{ padding: "8px 16px", borderRadius: 8, border: "1.5px solid #16a34a", background: "#fff", color: "#16a34a", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>+ Tambah Wilayah</button>
-              </div>
-
-              {form.wilayahData.map((w, i) => (
-                <WilayahCard key={w._id} data={w} index={i} canRemove={form.wilayahData.length > 1}
-                  onRemove={() => setForm({...form, wilayahData: form.wilayahData.filter((_, idx) => idx !== i)})}
-                  onChange={(val) => {
-                    const n = [...form.wilayahData]; n[i] = val; setForm({...form, wilayahData: n});
-                  }} />
-              ))}
-
-              <button onClick={handleSave} disabled={saving || isInvalid} 
-                style={{ 
-                    width: "100%", padding: "16px", borderRadius: 12, 
-                    background: isInvalid ? "#d1d5db" : "linear-gradient(135deg,#16a34a,#15803d)", 
-                    color: "#fff", fontWeight: 700, border: "none", cursor: isInvalid ? "not-allowed" : "pointer", 
-                    fontSize: 16, boxShadow: isInvalid ? "none" : "0 4px 10px rgba(22,163,74,0.3)" 
-                }}>
-                {saving ? "⏳ Menyimpan..." : "💾 Simpan Laporan Ke Rekap"}
-              </button>
-            </div>
-          );
-        }
-
-        // --- TAMPILAN UTAMA: REKAP ---
-        function RekapView({ refresh }) {
-          const [entries, setEntries] = useState([]);
-          const [selectedId, setSelectedId] = useState(null);
-
-          useEffect(() => { loadEntries().then(setEntries); }, [refresh]);
-
-          const deleteItem = async (id) => {
-            if (confirm("Hapus laporan ini secara permanen?")) {
-              const newList = entries.filter(e => e.id !== id);
-              await saveEntries(newList);
-              setEntries(newList);
-              setSelectedId(null);
-            }
-          };
-
-          const exportToPdf = (e) => {
-            // FITUR: Penamaan File PDF Otomatis
-            const fileName = `Laporan_SMM_${e.nama.replace(/\s+/g, '_')}_${(e.periode || 'Periode').replace(/\s+/g, '_')}`;
-            const originalTitle = document.title;
-            document.title = fileName;
-
-            const tgl = new Date(e.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
-            const html = `<html><body style="font-family:sans-serif; padding:30px; color:#333;">
-              <div style="border-bottom:4px solid #15803d; padding-bottom:15px; margin-bottom:25px;">
-                <h1 style="color:#15803d; margin:0; font-size:28px;">LAPORAN ANALISIS PASAR SMM</h1>
-                <p style="margin:8px 0; font-size:16px;"><b>Sales:</b> ${e.nama} | <b>Wilayah:</b> ${e.kabupaten || '-'} | <b>Periode:</b> ${e.periode || '-'}</p>
-                <small style="color:#666;">Data diinput pada: ${tgl}</small>
-              </div>
-              ${e.wilayahData.map((w, i) => `
-                <div style="margin-bottom:25px; border:1px solid #e5e7eb; border-radius:12px; padding:20px; page-break-inside:avoid;">
-                  <h3 style="color:#15803d; border-bottom:1px solid #f0fdf4; padding-bottom:10px;">📍 WILAYAH ${i+1}: ${w.namaWilayah}</h3>
-                  <p><b>Komoditas Utama:</b> ${[w.p1, w.p2, w.p3, w.p4, w.p5].filter(x=>x).join(", ") || "-"}</p>
-                  <div style="background:#fffbeb; padding:12px; border-radius:8px; border-left:4px solid #f59e0b;">
-                    <b>📦 Produk SMM Terjual:</b><br/>${w.produkTerjual || "-"}
-                  </div>
-                  <div style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div><b>Fase:</b> ${w.fase.join(", ") || "-"}</div>
-                    <div><b>Petani/Kios:</b> ${w.jumlahPetani || "-"}/${w.jumlahKios || "-"}</div>
-                  </div>
-                  <p><b>Kendala Utama:</b> ${w.kendalaUtama || "-"}</p>
-                  <div style="background:#eff6ff; padding:12px; border-radius:8px; margin-top:10px;">
-                    <b>🧪 Rekomendasi:</b><br/>
-                    1. ${w.produk1 || "-"} (${w.alasan1 || "-"})<br/>
-                    2. ${w.produk2 || "-"} (${w.alasan2 || "-"})<br/>
-                    3. ${w.produk3 || "-"} (${w.alasan3 || "-"})
-                  </div>
-                </div>
-              `).join("")}
-            </body></html>`;
-
-            const win = window.open("", "_blank");
-            win.document.write(html); win.document.close(); win.print();
-            
-            setTimeout(() => { document.title = originalTitle; }, 1000);
-          };
-
-          if (selectedId) {
-            const e = entries.find(x => x.id === selectedId);
-            return (
-              <div>
-                <button onClick={() => setSelectedId(null)} style={{ background: "none", border: "none", color: "#15803d", fontWeight: 700, cursor: "pointer", marginBottom: 15 }}>← Kembali ke Daftar</button>
-                <div style={{ background: "#fff", borderRadius: 15, padding: 20, border: "1.5px solid #e5e7eb", boxShadow: "0 4px 15px rgba(0,0,0,0.05)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-                    <div>
-                        <h2 style={{ margin: 0, color: "#111827" }}>{e.nama}</h2>
-                        <div style={{ color: "#6b7280" }}>{e.kabupaten} · {e.periode}</div>
-                    </div>
-                    <button onClick={() => deleteItem(e.id)} style={{ background: "#fee2e2", border: "none", padding: "8px 15px", borderRadius: 8, color: "#dc2626", fontWeight: "bold", cursor: "pointer" }}>Hapus</button>
-                  </div>
-                  
-                  <button onClick={() => exportToPdf(e)} style={{ width: "100%", padding: 14, background: "#1e40af", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", marginBottom: 20 }}>📄 Cetak ke PDF</button>
-                  
-                  {e.wilayahData.map((w, i) => (
-                    <div key={i} style={{ borderBottom: "1px solid #f3f4f6", padding: "15px 0" }}>
-                      <div style={{ fontWeight: 800, color: "#15803d", marginBottom: 5 }}>📍 {w.namaWilayah}</div>
-                      <div style={{ fontSize: 13, color: "#4b5563" }}>{w.produkTerjual || "Tidak ada produk terjual tercatat"}</div>
+              {(w.kendalaUtama||w.kendalaDistribusi||w.kendalaKompetitor||w.kendalaProduk) && (
+                <div style={{marginBottom:14}}>
+                  <div style={{fontSize:10,fontWeight:800,color:"#b91c1c",marginBottom:8,letterSpacing:1}}>⚠️ KENDALA</div>
+                  {[["PETANI",w.kendalaUtama],["DISTRIBUSI",w.kendalaDistribusi],["KOMPETITOR",w.kendalaKompetitor],["PRODUK SMM",w.kendalaProduk]].filter(([,v])=>v).map(([label,val])=>(
+                    <div key={label} style={{marginBottom:8}}>
+                      <span style={{fontSize:10,fontWeight:700,color:"#dc2626",background:"#fee2e2",padding:"2px 8px",borderRadius:5}}>{label}</span>
+                      <div style={{fontSize:12,color:"#374151",marginTop:4,paddingLeft:8,borderLeft:"2px solid #fca5a5",lineHeight:1.6}}>{val}</div>
                     </div>
                   ))}
                 </div>
-              </div>
-            );
-          }
-
-          return (
-            <div style={{ display: "grid", gap: 12 }}>
-              {entries.length === 0 ? (
-                <div style={{ textAlign: "center", padding: 60, color: "#9ca3af" }}>
-                  <div style={{ fontSize: 40 }}>📁</div>
-                  <p>Belum ada laporan yang disimpan.</p>
+              )}
+              {(w.produk1||w.produk2||w.produk3||w.kebutuhanBelumAda) && (
+                <div>
+                  <div style={{fontSize:10,fontWeight:800,color:"#1d4ed8",marginBottom:8,letterSpacing:1}}>🧪 REKOMENDASI PRODUK</div>
+                  {[1,2,3].filter(n=>w[`produk${n}`]).map(n=>(
+                    <div key={n} style={{display:"flex",gap:8,marginBottom:8,alignItems:"flex-start"}}>
+                      <span style={{background:"#15803d",color:"#fff",fontSize:10,fontWeight:800,padding:"2px 7px",borderRadius:5,whiteSpace:"nowrap",marginTop:1}}>P{n}</span>
+                      <div><div style={{fontSize:13,fontWeight:700}}>{w[`produk${n}`]}</div>{w[`alasan${n}`] && <div style={{fontSize:12,color:"#6b7280"}}>→ {w[`alasan${n}`]}</div>}</div>
+                    </div>
+                  ))}
+                  {w.kebutuhanBelumAda && <div style={{background:"#fef3c7",padding:"9px 12px",borderRadius:8,fontSize:12,color:"#92400e",marginTop:4}}>💡 <strong>Gap Produk:</strong> {w.kebutuhanBelumAda}</div>}
                 </div>
-              ) : entries.map(e => (
-                <div key={e.id} onClick={() => setSelectedId(e.id)} 
-                    style={{ background: "#fff", padding: 16, borderRadius: 12, border: "1.5px solid #e5e7eb", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", transition: "transform 0.2s" }}
-                    onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
-                    onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: 16, color: "#111827" }}>{e.nama}</div>
-                    <div style={{ fontSize: 12, color: "#6b7280" }}>{e.kabupaten} · {e.periode}</div>
-                    <div style={{ marginTop: 6 }}><Badge color="blue">{e.wilayahData.length} Wilayah</Badge></div>
-                  </div>
-                  <div style={{ color: "#d1d5db" }}>❯</div>
-                </div>
-              ))}
+              )}
             </div>
-          );
-        }
+          )}
+        </div>
+      );
+    }
 
-        // --- ROOT APP ---
-        function App() {
-          const [tab, setTab] = useState("form");
-          const [refresh, setRefresh] = useState(0);
+    // ── PDF BUILDER ──
+    function buildPdfHtml(e) {
+      const tgl = new Date(e.createdAt).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+      const cetakTgl = new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+      const noLaporan = `SMM-${e.kabupaten?.replace(/\s+/g,"").toUpperCase().slice(0,3)||"XXX"}-${new Date(e.createdAt).toLocaleDateString("id-ID",{month:"2-digit",year:"numeric"}).replace("/","")}${String(e.id).slice(-4)}`;
+      const starLabels = ["","Sangat Kurang","Kurang","Cukup","Baik","Sangat Baik"];
+      const starScore = e.selfScore || 0;
+      const starBar = [1,2,3,4,5].map(n => `<span style="font-size:18px;">${n<=starScore?"★":"☆"}</span>`).join("");
 
-          return (
-            <div style={{ minHeight: "100vh", background: "#f0fdf4", paddingBottom: 50 }}>
-              <div style={{ background: "#15803d", color: "#fff", paddingTop: 30, paddingBottom: 0, boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
-                <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 20px" }}>
-                  <div style={{ fontSize: 10, fontWeight: 900, opacity: 0.8, letterSpacing: 2, marginBottom: 5 }}>SURYA MAKMUR MANDIRI</div>
-                  <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900 }}>Market Analysis v3.3</h1>
-                  <div style={{ display: "flex", gap: 10, marginTop: 25 }}>
-                    <button onClick={() => setTab("form")} style={{ flex: 1, padding: "14px", border: "none", borderRadius: "12px 12px 0 0", background: tab === "form" ? "#f0fdf4" : "rgba(255,255,255,0.15)", color: tab === "form" ? "#15803d" : "#fff", fontWeight: 800, cursor: "pointer", transition: "all 0.3s" }}>INPUT LAPORAN</button>
-                    <button onClick={() => setTab("rekap")} style={{ flex: 1, padding: "14px", border: "none", borderRadius: "12px 12px 0 0", background: tab === "rekap" ? "#f0fdf4" : "rgba(255,255,255,0.15)", color: tab === "rekap" ? "#15803d" : "#fff", fontWeight: 800, cursor: "pointer", transition: "all 0.3s" }}>REKAP DATA</button>
-                  </div>
-                </div>
+      // KPI Realisasi %
+      let kpiPct = null;
+      const tgt = parseInt(e.targetKunjungan);
+      const real = parseInt(e.realisasiKunjungan);
+      if (!isNaN(tgt) && !isNaN(real) && tgt > 0) kpiPct = Math.round((real/tgt)*100);
+      const kpiColor = kpiPct === null ? "#6b7280" : kpiPct >= 100 ? "#15803d" : kpiPct >= 80 ? "#d97706" : "#dc2626";
+      const kpiLabel = kpiPct === null ? "—" : kpiPct >= 100 ? "✓ TERCAPAI" : kpiPct >= 80 ? "⚠ HAMPIR" : "✗ BELUM TERCAPAI";
+
+      // Summary table rows
+      const summaryRows = (e.wilayahData||[]).map((w,i) => {
+        const komoditas = [w.p1,w.p2,w.p3,w.p4,w.p5].filter(x=>x).join(", ")||"-";
+        const dbColor = w.dayaBeli==="Tinggi"?"#16a34a":w.dayaBeli==="Sedang"?"#d97706":w.dayaBeli==="Rendah"?"#dc2626":"#374151";
+        const dbBg = w.dayaBeli==="Tinggi"?"#d1fae5":w.dayaBeli==="Sedang"?"#fef3c7":w.dayaBeli==="Rendah"?"#fee2e2":"#f3f4f6";
+        const produkList = [w.produk1,w.produk2,w.produk3].filter(x=>x).join(", ")||"-";
+        return `
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:9px 10px;font-weight:800;color:#15803d;font-size:12px;white-space:nowrap;">W${i+1}</td>
+          <td style="padding:9px 10px;font-weight:700;font-size:12px;">${w.namaWilayah}</td>
+          <td style="padding:9px 10px;font-size:11px;color:#374151;">${komoditas}</td>
+          <td style="padding:9px 10px;font-size:11px;text-align:center;">${w.fase?.join(", ")||"-"}</td>
+          <td style="padding:9px 10px;font-size:11px;text-align:center;">${w.jumlahPetani||"-"}</td>
+          <td style="padding:9px 10px;font-size:11px;text-align:center;">${w.jumlahKios||"-"}</td>
+          <td style="padding:9px 10px;text-align:center;">
+            ${w.dayaBeli ? `<span style="background:${dbBg};color:${dbColor};padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;">${w.dayaBeli}</span>` : "-"}
+          </td>
+          <td style="padding:9px 10px;font-size:11px;color:#374151;">${produkList}</td>
+        </tr>`;
+      }).join("");
+
+      // Wilayah detail blocks
+      const wilayahBlocks = (e.wilayahData||[]).map((w,i) => {
+        const komoditas = [w.p1,w.p2,w.p3,w.p4,w.p5].filter(x=>x).join(", ")||"-";
+        const fase = w.fase?.length ? w.fase.join(", ") : "-";
+        const dbColor = w.dayaBeli==="Tinggi"?"#15803d":w.dayaBeli==="Sedang"?"#d97706":w.dayaBeli==="Rendah"?"#dc2626":"#6b7280";
+        const dbBg = w.dayaBeli==="Tinggi"?"#d1fae5":w.dayaBeli==="Sedang"?"#fef3c7":w.dayaBeli==="Rendah"?"#fee2e2":"#f3f4f6";
+
+        const kendalaItems = [["Petani",w.kendalaUtama],["Distribusi",w.kendalaDistribusi],["Kompetitor",w.kendalaKompetitor],["Produk SMM",w.kendalaProduk]].filter(([,v])=>v);
+        const produkItems = [1,2,3].filter(n=>w[`produk${n}`]);
+
+        return `
+        <div style="margin-bottom:28px;border:1.5px solid #d1fae5;border-radius:12px;overflow:hidden;page-break-inside:avoid;">
+          <!-- Wilayah Header -->
+          <div style="background:linear-gradient(135deg,#14532d,#16a34a);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:700;letter-spacing:1.5px;margin-bottom:2px;">WILAYAH ${i+1}</div>
+              <div style="font-size:18px;font-weight:900;color:#fff;">📍 ${w.namaWilayah}</div>
+            </div>
+            ${w.dayaBeli ? `<div style="text-align:center;background:rgba(255,255,255,0.15);padding:8px 14px;border-radius:10px;">
+              <div style="font-size:9px;color:rgba(255,255,255,0.65);font-weight:700;letter-spacing:1px;">DAYA BELI</div>
+              <div style="font-size:16px;font-weight:900;color:#fff;margin-top:1px;">${w.dayaBeli}</div>
+            </div>` : ""}
+          </div>
+
+          <div style="padding:18px;background:#fff;">
+            <!-- Stats Row -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
+              <div style="background:#f0fdf4;padding:12px;border-radius:8px;border:1px solid #d1fae5;">
+                <div style="font-size:9px;color:#6b7280;font-weight:700;letter-spacing:0.5px;margin-bottom:3px;">PETANI AKTIF</div>
+                <div style="font-size:18px;font-weight:900;color:#15803d;">${w.jumlahPetani||"—"}</div>
               </div>
-
-              <div style={{ maxWidth: 640, margin: "0 auto", padding: 20 }}>
-                {tab === "form" ? <FormView onSave={() => { setRefresh(r => r + 1); setTab("rekap"); }} /> : <RekapView refresh={refresh} />}
+              <div style="background:#eff6ff;padding:12px;border-radius:8px;border:1px solid #dbeafe;">
+                <div style="font-size:9px;color:#6b7280;font-weight:700;letter-spacing:0.5px;margin-bottom:3px;">KIOS / TOKO</div>
+                <div style="font-size:18px;font-weight:900;color:#1d4ed8;">${w.jumlahKios||"—"}</div>
+              </div>
+              <div style="background:${dbBg};padding:12px;border-radius:8px;border:1px solid ${dbBg=="#f3f4f6"?"#e5e7eb":dbColor+'44'};">
+                <div style="font-size:9px;color:#6b7280;font-weight:700;letter-spacing:0.5px;margin-bottom:3px;">DAYA BELI</div>
+                <div style="font-size:18px;font-weight:900;color:${dbColor};">${w.dayaBeli||"—"}</div>
               </div>
             </div>
-          );
-        }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+            <!-- Komoditas & Fase -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+              <div>
+                <div style="font-size:9px;font-weight:800;color:#15803d;letter-spacing:1px;margin-bottom:6px;border-bottom:1.5px solid #d1fae5;padding-bottom:4px;">🌾 KOMODITAS UTAMA</div>
+                <div>${[w.p1,w.p2,w.p3,w.p4,w.p5].filter(x=>x).map((k,idx)=>`<span style="display:inline-block;background:#d1fae5;color:#065f46;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;margin:2px 2px;">${k}</span>`).join("")||'<span style="color:#9ca3af;font-size:12px;">—</span>'}</div>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:800;color:#0891b2;letter-spacing:1px;margin-bottom:6px;border-bottom:1.5px solid #cffafe;padding-bottom:4px;">🗓 FASE TANAM</div>
+                <div>${(w.fase||[]).map(f=>`<span style="display:inline-block;background:#cffafe;color:#0e7490;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;margin:2px 2px;">${f}</span>`).join("")||'<span style="color:#9ca3af;font-size:12px;">—</span>'}</div>
+              </div>
+            </div>
+
+            <!-- Produk Terjual -->
+            ${w.produkTerjual ? `
+            <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:12px 14px;margin-bottom:18px;">
+              <div style="font-size:9px;font-weight:800;color:#92400e;letter-spacing:1px;margin-bottom:6px;">📦 PRODUK SMM TERJUAL PERIODE INI</div>
+              <div style="font-size:12px;line-height:1.7;color:#374151;">${w.produkTerjual}</div>
+            </div>` : ""}
+
+            ${w.catatanWilayah ? `
+            <div style="background:#f9fafb;border-radius:8px;padding:12px 14px;margin-bottom:18px;border-left:3px solid #16a34a;">
+              <div style="font-size:9px;font-weight:800;color:#374151;letter-spacing:1px;margin-bottom:5px;">📋 CATATAN POTENSI</div>
+              <div style="font-size:12px;line-height:1.7;color:#374151;">${w.catatanWilayah}</div>
+            </div>` : ""}
+
+            <!-- Kendala -->
+            ${kendalaItems.length > 0 ? `
+            <div style="margin-bottom:18px;">
+              <div style="font-size:9px;font-weight:800;color:#b91c1c;letter-spacing:1px;margin-bottom:8px;border-bottom:1.5px solid #fecaca;padding-bottom:4px;">⚠ KENDALA TERIDENTIFIKASI</div>
+              ${kendalaItems.map(([label,val])=>`
+              <div style="margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;">
+                <div style="min-width:90px;background:#fee2e2;color:#dc2626;font-size:9px;font-weight:800;padding:4px 8px;border-radius:5px;text-align:center;letter-spacing:0.5px;margin-top:1px;">${label.toUpperCase()}</div>
+                <div style="font-size:12px;color:#374151;line-height:1.6;flex:1;padding-top:2px;">${val}</div>
+              </div>`).join("")}
+            </div>` : ""}
+
+            <!-- Rekomendasi Produk -->
+            ${produkItems.length > 0 || w.kebutuhanBelumAda ? `
+            <div>
+              <div style="font-size:9px;font-weight:800;color:#1d4ed8;letter-spacing:1px;margin-bottom:8px;border-bottom:1.5px solid #dbeafe;padding-bottom:4px;">🧪 REKOMENDASI PRODUK</div>
+              ${produkItems.map(n=>`
+              <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">
+                <div style="min-width:28px;background:#15803d;color:#fff;font-size:10px;font-weight:800;padding:4px 7px;border-radius:5px;text-align:center;">P${n}</div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:700;color:#111827;">${w[`produk${n}`]}</div>
+                  ${w[`alasan${n}`] ? `<div style="font-size:11px;color:#6b7280;margin-top:1px;">→ ${w[`alasan${n}`]}</div>` : ""}
+                </div>
+              </div>`).join("")}
+              ${w.kebutuhanBelumAda ? `<div style="background:#fef3c7;border:1px solid #fde68a;padding:10px 13px;border-radius:8px;font-size:12px;color:#92400e;margin-top:6px;"><strong>💡 Gap Produk:</strong> ${w.kebutuhanBelumAda}</div>` : ""}
+            </div>` : ""}
+          </div>
+        </div>`;
+      }).join("");
+
+      return `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Laporan_${e.nama.replace(/\s+/g,"_")}_${(e.periode||"Periode").replace(/\s+/g,"_")}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; color: #111827; font-size: 13px; }
+    .page { max-width: 900px; margin: 0 auto; padding: 32px 28px 60px; }
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: 100%; }
+      .no-print { display: none !important; }
+      .page-break { page-break-before: always; }
+      @page { margin: 16mm 14mm; size: A4; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══════════ COVER ══════════ -->
+  <div style="background:linear-gradient(135deg,#14532d 0%,#15803d 55%,#16a34a 100%);border-radius:16px;padding:36px 32px 32px;color:#fff;margin-bottom:28px;position:relative;overflow:hidden;">
+    <div style="position:absolute;right:-30px;top:-30px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+    <div style="position:absolute;right:40px;bottom:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.06);"></div>
+    <div style="position:relative;z-index:1;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-size:9px;font-weight:800;letter-spacing:3px;opacity:0.6;margin-bottom:6px;">CV. SURYA MAKMUR MANDIRI</div>
+          <div style="font-size:11px;font-weight:700;opacity:0.7;margin-bottom:2px;">LAPORAN ANALISIS POTENSI PASAR</div>
+          <div style="font-size:32px;font-weight:900;line-height:1.1;margin-bottom:8px;">${e.nama}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:12px;opacity:0.85;">
+            ${e.kabupaten ? `<span style="background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:6px;">🗺️ ${e.kabupaten}</span>` : ""}
+            ${e.periode ? `<span style="background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:6px;">🗓 ${e.periode}</span>` : ""}
+            <span style="background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:6px;">📍 ${e.wilayahData?.length||0} Wilayah</span>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;text-align:right;min-width:160px;">
+          <div style="font-size:9px;opacity:0.65;font-weight:700;letter-spacing:1px;margin-bottom:3px;">NO. LAPORAN</div>
+          <div style="font-size:13px;font-weight:800;letter-spacing:1px;">${noLaporan}</div>
+          <div style="margin-top:10px;font-size:9px;opacity:0.65;font-weight:700;letter-spacing:1px;margin-bottom:3px;">TGL. SUBMIT</div>
+          <div style="font-size:12px;font-weight:700;">${tgl}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ KPI & SELF EVAL ══════════ -->
+  <div style="margin-bottom:28px;border:1.5px solid #ede9fe;border-radius:14px;overflow:hidden;">
+    <div style="background:#5b21b6;padding:12px 18px;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:14px;">📊</span>
+      <span style="color:#fff;font-weight:800;font-size:13px;letter-spacing:0.5px;">KINERJA & EVALUASI DIRI</span>
+    </div>
+    <div style="background:#fff;padding:20px;">
+      <!-- KPI Row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div style="background:#f5f3ff;padding:14px;border-radius:10px;border:1px solid #ede9fe;text-align:center;">
+          <div style="font-size:9px;color:#7c3aed;font-weight:800;letter-spacing:0.5px;margin-bottom:4px;">TARGET KUNJUNGAN</div>
+          <div style="font-size:22px;font-weight:900;color:#5b21b6;">${e.targetKunjungan||"—"}</div>
+        </div>
+        <div style="background:#f0fdf4;padding:14px;border-radius:10px;border:1px solid #d1fae5;text-align:center;">
+          <div style="font-size:9px;color:#15803d;font-weight:800;letter-spacing:0.5px;margin-bottom:4px;">REALISASI</div>
+          <div style="font-size:22px;font-weight:900;color:#15803d;">${e.realisasiKunjungan||"—"}</div>
+        </div>
+        <div style="padding:14px;border-radius:10px;border:1px solid #e5e7eb;text-align:center;background:${kpiPct===null?"#f9fafb":kpiPct>=100?"#d1fae5":kpiPct>=80?"#fef3c7":"#fee2e2"};">
+          <div style="font-size:9px;color:#374151;font-weight:800;letter-spacing:0.5px;margin-bottom:4px;">PENCAPAIAN</div>
+          <div style="font-size:22px;font-weight:900;color:${kpiColor};">${kpiPct!==null?kpiPct+"%":"—"}</div>
+        </div>
+        <div style="background:#f9fafb;padding:14px;border-radius:10px;border:1px solid #e5e7eb;text-align:center;">
+          <div style="font-size:9px;color:#374151;font-weight:800;letter-spacing:0.5px;margin-bottom:4px;">STATUS</div>
+          <div style="font-size:11px;font-weight:900;color:${kpiColor};margin-top:4px;">${kpiLabel}</div>
+        </div>
+      </div>
+
+      <!-- Self Score -->
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:16px;">
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:9px;color:#92400e;font-weight:800;letter-spacing:0.5px;margin-bottom:6px;">PENILAIAN DIRI</div>
+          <div style="font-size:24px;margin-bottom:4px;">${starBar}</div>
+          <div style="font-size:13px;font-weight:800;color:#92400e;">${starScore}/5 — ${starLabels[starScore]||"Belum dinilai"}</div>
+        </div>
+        <div>
+          ${e.catatanDiri ? `
+          <div style="background:#f9fafb;border-radius:8px;padding:12px;margin-bottom:10px;border-left:3px solid #7c3aed;">
+            <div style="font-size:9px;font-weight:800;color:#7c3aed;letter-spacing:0.5px;margin-bottom:5px;">📝 CATATAN EVALUASI DIRI</div>
+            <div style="font-size:12px;line-height:1.7;color:#374151;">${e.catatanDiri}</div>
+          </div>` : ""}
+          ${e.rencanaTindakLanjut ? `
+          <div style="background:#f0fdf4;border-radius:8px;padding:12px;border-left:3px solid #16a34a;">
+            <div style="font-size:9px;font-weight:800;color:#15803d;letter-spacing:0.5px;margin-bottom:5px;">🔜 RENCANA TINDAK LANJUT</div>
+            <div style="font-size:12px;line-height:1.7;color:#374151;">${e.rencanaTindakLanjut}</div>
+          </div>` : ""}
+          ${!e.catatanDiri && !e.rencanaTindakLanjut ? `<div style="color:#9ca3af;font-size:12px;padding:10px;">—</div>` : ""}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ RINGKASAN SEMUA WILAYAH ══════════ -->
+  <div style="margin-bottom:32px;border:1.5px solid #d1fae5;border-radius:14px;overflow:hidden;">
+    <div style="background:#f0fdf4;padding:12px 18px;border-bottom:1.5px solid #d1fae5;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:14px;">🗺️</span>
+        <span style="color:#15803d;font-weight:800;font-size:13px;letter-spacing:0.5px;">RINGKASAN SEMUA WILAYAH</span>
+      </div>
+      <span style="background:#15803d;color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;">${e.wilayahData?.length||0} Wilayah</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px;">
+        <thead>
+          <tr style="background:#f9fafb;border-bottom:2px solid #d1fae5;">
+            <th style="padding:10px;text-align:left;font-size:10px;color:#374151;font-weight:800;letter-spacing:0.5px;width:32px;">#</th>
+            <th style="padding:10px;text-align:left;font-size:10px;color:#374151;font-weight:800;letter-spacing:0.5px;">WILAYAH</th>
+            <th style="padding:10px;text-align:left;font-size:10px;color:#374151;font-weight:800;letter-spacing:0.5px;">KOMODITAS</th>
+            <th style="padding:10px;text-align:center;font-size:10px;color:#374151;font-weight:800;letter-spacing:0.5px;">FASE</th>
+            <th style="padding:10px;text-align:center;font-size:10px;color:#374151;font-weight:800;letter-spacing:0.5px;">PETANI</th>
+            <th style="padding:10px;text-align:center;font-size:10px;color:#374151;font-weight:800;letter-spacing:0.5px;">KIOS</th>
+            <th style="padding:10px;text-align:center;font-size:10px;color:#374151;font-weight:800;letter-spacing:0.5px;">DAYA BELI</th>
+            <th style="padding:10px;text-align:left;font-size:10px;color:#374151;font-weight:800;letter-spacing:0.5px;">REKOMENDASI PRODUK</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${summaryRows}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════ DETAIL PER WILAYAH ══════════ -->
+  <div style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+    <div style="height:2px;flex:1;background:linear-gradient(to right,#16a34a,transparent);"></div>
+    <div style="font-size:11px;font-weight:800;color:#15803d;letter-spacing:2px;white-space:nowrap;">DETAIL PER WILAYAH</div>
+    <div style="height:2px;flex:1;background:linear-gradient(to left,#16a34a,transparent);"></div>
+  </div>
+
+  ${wilayahBlocks}
+
+  <!-- ══════════ ADMIN NOTES ══════════ -->
+  <div style="margin-bottom:28px;border:2px dashed #d1d5db;border-radius:14px;padding:20px;page-break-inside:avoid;">
+    <div style="font-size:9px;font-weight:800;color:#6b7280;letter-spacing:2px;margin-bottom:14px;">KOLOM EVALUASI ADMIN (TIDAK DIISI SALES)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#374151;margin-bottom:6px;">Catatan Admin</div>
+        <div style="border-bottom:1px solid #d1d5db;height:28px;margin-bottom:10px;"></div>
+        <div style="border-bottom:1px solid #d1d5db;height:28px;margin-bottom:10px;"></div>
+        <div style="border-bottom:1px solid #d1d5db;height:28px;"></div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#374151;margin-bottom:6px;">Skor Evaluasi Admin (1–10)</div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          ${[...Array(10)].map((_,i)=>`<div style="width:28px;height:28px;border:1.5px solid #d1d5db;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#9ca3af;">${i+1}</div>`).join("")}
+        </div>
+        <div style="margin-top:14px;">
+          <div style="font-size:10px;font-weight:700;color:#374151;margin-bottom:6px;">Tanda Tangan Admin</div>
+          <div style="border-bottom:1px solid #d1d5db;height:40px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <div style="border-top:1px solid #e5e7eb;padding-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <div style="font-size:10px;color:#9ca3af;">CV. Surya Makmur Mandiri · Sistem Analisis Pasar · ${cetakTgl}</div>
+    <div style="font-size:10px;color:#9ca3af;">${noLaporan} · ${e.nama}</div>
+  </div>
+
+  <!-- Print Button -->
+  <div class="no-print" style="margin-top:28px;padding:20px;background:#f9fafb;border-radius:12px;border:1px dashed #d1d5db;text-align:center;">
+    <div style="font-size:12px;color:#6b7280;margin-bottom:12px;">Siap dicetak atau disimpan sebagai PDF</div>
+    <button onclick="window.print()" style="padding:13px 32px;background:linear-gradient(135deg,#15803d,#16a34a);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-right:10px;box-shadow:0 4px 12px rgba(22,163,74,0.3);">🖨️ Cetak / Simpan PDF</button>
+    <button onclick="window.close()" style="padding:13px 20px;background:#fff;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">✕ Tutup</button>
+  </div>
+
+</div>
+</body>
+</html>`;
+    }
+
+    function exportToPdf(e) {
+      const html = buildPdfHtml(e);
+      const blob = new Blob([html],{type:"text/html"});
+      const url = URL.createObjectURL(blob);
+      const win = window.open(url,"_blank");
+      if (!win) alert("Popup diblokir. Izinkan popup untuk halaman ini lalu coba lagi.");
+      else setTimeout(()=>URL.revokeObjectURL(url),15000);
+    }
+
+    function RekapView({ refresh }) {
+      const [entries, setEntries] = useState([]);
+      const [selectedId, setSelectedId] = useState(null);
+      const [filter, setFilter] = useState("");
+
+      useEffect(()=>{ setEntries(loadEntries()); }, [refresh]);
+
+      const deleteItem = (id) => {
+        if (!confirm("Hapus laporan ini secara permanen?")) return;
+        const newList = entries.filter(e=>e.id!==id);
+        saveEntries(newList);
+        setEntries(newList);
+        setSelectedId(null);
+      };
+
+      const filtered = entries.filter(e => {
+        const q = filter.toLowerCase();
+        return !q || e.nama.toLowerCase().includes(q) || e.kabupaten?.toLowerCase().includes(q) || e.periode?.toLowerCase().includes(q) || e.wilayahData?.some(w => w.namaWilayah.toLowerCase().includes(q));
+      });
+
+      if (selectedId) {
+        const e = entries.find(x=>x.id===selectedId);
+        if (!e) { setSelectedId(null); return null; }
+        const starLabels = ["","Sangat Kurang","Kurang","Cukup","Baik","Sangat Baik"];
+        return (
+          <div>
+            <button className="btn-back" onClick={()=>setSelectedId(null)}>← Kembali ke Daftar</button>
+            <div className="detail-header">
+              <div style={{fontSize:22,fontWeight:900,marginBottom:4}}>{e.nama}</div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:8}}>
+                {e.kabupaten && <span style={{background:"rgba(255,255,255,0.2)",borderRadius:6,padding:"2px 10px",fontSize:12,fontWeight:600}}>🗺️ {e.kabupaten}</span>}
+                {e.periode && <span style={{background:"rgba(255,255,255,0.15)",borderRadius:6,padding:"2px 10px",fontSize:12}}>🗓 {e.periode}</span>}
+              </div>
+              <div style={{fontSize:12,opacity:0.7}}>{e.wilayahData?.length} wilayah · Dikirim {new Date(e.createdAt).toLocaleDateString("id-ID")}</div>
+            </div>
+
+            {/* KPI Preview */}
+            {(e.targetKunjungan || e.realisasiKunjungan || e.selfScore > 0) && (
+              <div className="card">
+                <div className="section-header" style={{color:"#7c3aed"}}>📊 KINERJA</div>
+                <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                  {e.targetKunjungan && <div style={{background:"#f5f3ff",padding:"8px 14px",borderRadius:8,fontSize:12}}><span style={{color:"#6b7280"}}>Target: </span><strong style={{color:"#5b21b6"}}>{e.targetKunjungan}</strong></div>}
+                  {e.realisasiKunjungan && <div style={{background:"#f0fdf4",padding:"8px 14px",borderRadius:8,fontSize:12}}><span style={{color:"#6b7280"}}>Realisasi: </span><strong style={{color:"#15803d"}}>{e.realisasiKunjungan}</strong></div>}
+                  {e.selfScore > 0 && <div style={{background:"#fffbeb",padding:"8px 14px",borderRadius:8,fontSize:12}}><span style={{color:"#6b7280"}}>Skor diri: </span><strong style={{color:"#d97706"}}>{e.selfScore}/5 — {starLabels[e.selfScore]}</strong></div>}
+                </div>
+              </div>
+            )}
+
+            <button className="btn-pdf" onClick={()=>exportToPdf(e)}>📄 Export PDF / Cetak Laporan Ini</button>
+
+            <div style={{fontSize:12,fontWeight:700,color:"#374151",marginBottom:10}}>Detail Per Wilayah — klik untuk buka ↓</div>
+            {e.wilayahData?.map((w,i)=><WilayahDetail key={i} w={w} />)}
+
+            <button className="btn-danger" style={{width:"100%",marginTop:10}} onClick={()=>deleteItem(e.id)}>
+              🗑️ Hapus Laporan Ini
+            </button>
+          </div>
+        );
+      }
+
+      const totalWilayah = entries.reduce((s,e)=>s+(e.wilayahData?.length||0),0);
+      return (
+        <div>
+          <div className="stats-bar">
+            <div style={{fontSize:12,opacity:0.8,fontWeight:500}}>Total Laporan Masuk</div>
+            <div style={{fontSize:36,fontWeight:900,lineHeight:1.1}}>{entries.length}</div>
+            <div style={{fontSize:12,opacity:0.65,marginTop:2}}>{totalWilayah} wilayah tercatat · Surya Makmur Mandiri</div>
+          </div>
+          <div className="search-wrap">
+            <span className="search-icon">🔍</span>
+            <input className="search-box" value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Cari nama sales, kabupaten, kecamatan, periode..." />
+          </div>
+          {filtered.length === 0 ? (
+            <div style={{textAlign:"center",padding:"50px 20px",color:"#9ca3af"}}>
+              <div style={{fontSize:42,marginBottom:10}}>📭</div>
+              <div style={{fontSize:14,fontWeight:600}}>{entries.length===0 ? "Belum ada laporan tersimpan" : "Tidak ditemukan"}</div>
+              {entries.length===0 && <div style={{fontSize:12,marginTop:4}}>Isi form Input Laporan untuk mulai</div>}
+            </div>
+          ) : filtered.map(e => (
+            <div key={e.id} className="rekap-card" onClick={()=>setSelectedId(e.id)}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                <div>
+                  <div style={{fontWeight:800,fontSize:16,color:"#111827",marginBottom:3}}>{e.nama}</div>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                    {e.kabupaten && <span style={{fontSize:11,background:"#f0fdf4",color:"#15803d",padding:"2px 8px",borderRadius:5,fontWeight:700}}>🗺️ {e.kabupaten}</span>}
+                    {e.periode && <span style={{fontSize:12,color:"#6b7280"}}>🗓 {e.periode}</span>}
+                    {e.selfScore > 0 && <span style={{fontSize:11,background:"#fffbeb",color:"#d97706",padding:"2px 8px",borderRadius:5,fontWeight:700}}>⭐ {e.selfScore}/5</span>}
+                  </div>
+                </div>
+                <span style={{background:"#f0fdf4",color:"#15803d",fontWeight:800,fontSize:13,padding:"4px 10px",borderRadius:8,whiteSpace:"nowrap"}}>{e.wilayahData?.length} wilayah</span>
+              </div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:5,marginTop:10}}>
+                {e.wilayahData?.map((w,i)=>(
+                  <span key={i} style={{fontSize:11,background:"#f3f4f6",color:"#374151",padding:"3px 9px",borderRadius:6}}>📍 {w.namaWilayah}</span>
+                ))}
+              </div>
+              <div style={{fontSize:11,color:"#9ca3af",marginTop:8}}>Dikirim {new Date(e.createdAt).toLocaleDateString("id-ID")}</div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    function App() {
+      const [tab, setTab] = useState("form");
+      const [refresh, setRefresh] = useState(0);
+      return (
+        <div>
+          <div className="header">
+            <div className="header-inner">
+              <div className="header-brand">SURYA MAKMUR MANDIRI</div>
+              <div className="header-title">Market Analysis v3.4</div>
+              <div className="header-sub">Pemetaan Potensi Pasar · Tim Sales</div>
+              <div className="tab-bar">
+                <button className={`tab-btn ${tab==="form"?"active":"inactive"}`} onClick={()=>setTab("form")}>📝 INPUT LAPORAN</button>
+                <button className={`tab-btn ${tab==="rekap"?"active":"inactive"}`} onClick={()=>setTab("rekap")}>📊 REKAP DATA</button>
+              </div>
+            </div>
+          </div>
+          <div className="main">
+            {tab==="form"
+              ? <FormView onSave={()=>{ setRefresh(r=>r+1); setTab("rekap"); }} />
+              : <RekapView refresh={refresh} />}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
 </body>
 </html>
