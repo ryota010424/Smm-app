@@ -3,33 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMM Market Analysis v3.3 - Full</title>
+    <title>SMM Market Analysis v3</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        body { margin: 0; font-family: -apple-system, sans-serif; background-color: #f0fdf4; }
-        * { box-sizing: border-box; }
-        .input-style { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #d1d5db; font-size: 14px; outline: none; }
-        .input-style:focus { border-color: #16a34a; }
-        .card { background: white; padding: 16px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .btn-primary { background: linear-gradient(135deg,#16a34a,#15803d); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; width: 100%; cursor: pointer; }
-        .btn-primary:disabled { background: #d1d5db; cursor: not-allowed; }
-    </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
+        // Mengambil fungsi dari React global
         const { useState, useEffect } = React;
 
+        // --- KODE ASLI ANDA MULAI DARI SINI (DENGAN PERUBAHAN YANG DISEPAKATI) ---
+        
         const FASE = ["Pengolahan Lahan", "Vegetatif", "Generatif", "Panen"];
-        const STORAGE_KEY = "smm-market-v3-full-data";
+        const STORAGE_KEY = "smm-market-v3";
 
         const emptyWilayah = () => ({
           _id: Date.now() + Math.random(),
           namaWilayah: "",
+          // Perubahan: 5 kolom komoditas
           p1: "", p2: "", p3: "", p4: "", p5: "",
+          // Perubahan: Produk terjual
           produkTerjual: "",
           fase: [],
           jumlahPetani: "", jumlahKios: "", dayaBeli: "", catatanWilayah: "",
@@ -43,21 +39,30 @@
           wilayahData: [emptyWilayah()]
         });
 
-        // --- Helper Components ---
-        function Badge({ children, color = "green" }) {
-          const bg = { green: "#d1fae5", yellow: "#fef3c7", red: "#fee2e2", blue: "#dbeafe" };
-          const fg = { green: "#065f46", yellow: "#92400e", red: "#991b1b", blue: "#1e40af" };
-          return <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 800, background: bg[color], color: fg[color], marginRight: 5 }}>{children}</span>;
+        async function loadEntries() {
+          try {
+            const d = localStorage.getItem(STORAGE_KEY);
+            return d ? JSON.parse(d) : [];
+          } catch { return []; }
+        }
+        async function saveEntries(list) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
         }
 
-        function CheckGroup({ options, selected, onChange }) {
+        function Badge({ children, color = "green" }) {
+          const bg = { green: "#d1fae5", yellow: "#fef3c7", red: "#fee2e2", blue: "#dbeafe", gray: "#f3f4f6" };
+          const fg = { green: "#065f46", yellow: "#92400e", red: "#991b1b", blue: "#1e40af", gray: "#374151" };
+          return <span style={{ padding: "2px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600, background: bg[color], color: fg[color] }}>{children}</span>;
+        }
+
+        function CheckGroup({ options, selected, onChange, color = "#16a34a" }) {
           return (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {options.map(opt => {
                 const active = selected.includes(opt);
                 return (
                   <button key={opt} onClick={() => onChange(active ? selected.filter(x => x !== opt) : [...selected, opt])}
-                    style={{ padding: "5px 12px", borderRadius: 20, fontSize: 12, cursor: "pointer", border: `1.5px solid ${active ? "#16a34a" : "#d1d5db"}`, background: active ? "#16a34a" : "#fff", color: active ? "#fff" : "#374151" }}>
+                    style={{ padding: "4px 11px", borderRadius: 20, fontSize: 12, cursor: "pointer", border: `1.5px solid ${active ? color : "#d1d5db"}`, background: active ? color : "#fff", color: active ? "#fff" : "#374151", fontWeight: active ? 600 : 400 }}>
                     {opt}
                   </button>
                 );
@@ -66,215 +71,264 @@
           );
         }
 
-        // --- Main Views ---
-        function App() {
-          const [tab, setTab] = useState("form");
-          const [entries, setEntries] = useState([]);
-          const [form, setForm] = useState(emptyForm());
+        function Field({ label, value, onChange, placeholder }) {
+          return (
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 3 }}>{label}</label>
+              <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+                style={{ width: "100%", padding: "7px 11px", borderRadius: 7, border: "1.5px solid #d1d5db", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                onFocus={e => e.target.style.border = "1.5px solid #16a34a"}
+                onBlur={e => e.target.style.border = "1.5px solid #d1d5db"} />
+            </div>
+          );
+        }
 
-          useEffect(() => {
-            const data = localStorage.getItem(STORAGE_KEY);
-            if (data) setEntries(JSON.parse(data));
-          }, []);
+        function Area({ label, value, onChange, placeholder }) {
+          return (
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 3 }}>{label}</label>
+              <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={2}
+                style={{ width: "100%", padding: "7px 11px", borderRadius: 7, border: "1.5px solid #d1d5db", fontSize: 13, outline: "none", resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" }}
+                onFocus={e => e.target.style.border = "1.5px solid #16a34a"}
+                onBlur={e => e.target.style.border = "1.5px solid #d1d5db"} />
+            </div>
+          );
+        }
 
-          // Validasi: Nama Sales & Nama Wilayah Tidak Boleh Kosong
-          const isInvalid = !form.nama.trim() || form.wilayahData.some(w => !w.namaWilayah.trim());
-
-          const handleSave = () => {
-            if (isInvalid) return alert("Mohon lengkapi Nama Sales dan Nama Wilayah!");
-            const newList = [{ ...form, id: Date.now(), createdAt: new Date().toISOString() }, ...entries];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
-            setEntries(newList);
-            setForm(emptyForm());
-            setTab("rekap");
-            alert("Laporan Berhasil Disimpan!");
-          };
-
-          const deleteEntry = (id) => {
-            if (confirm("Hapus laporan ini secara permanen?")) {
-              const newList = entries.filter(e => e.id !== id);
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
-              setEntries(newList);
-            }
-          };
-
-          const exportPdf = (e) => {
-            // Penamaan File PDF Otomatis
-            const fileName = `Laporan_SMM_${e.nama.replace(/\s+/g, '_')}_${(e.periode || 'Periode').replace(/\s+/g, '_')}`;
-            const originalTitle = document.title;
-            document.title = fileName;
-
-            const html = `<html><body style="font-family:sans-serif; padding:20px;">
-              <h1 style="color:#15803d; border-bottom:3px solid #15803d; padding-bottom:10px;">LAPORAN PASAR SMM</h1>
-              <p><b>Sales:</b> ${e.nama} | <b>Kabupaten:</b> ${e.kabupaten || '-'} | <b>Periode:</b> ${e.periode || '-'}</p>
-              <hr/>
-              ${e.wilayahData.map((w, i) => `
-                <div style="margin-bottom:30px; border:1px solid #eee; padding:20px; border-radius:10px; page-break-inside:avoid;">
-                  <h2 style="color:#15803d; margin-top:0;">📍 Wilayah ${i+1}: ${w.namaWilayah}</h2>
-                  <p><b>Komoditas Utama:</b> ${[w.p1, w.p2, w.p3, w.p4, w.p5].filter(x=>x).join(", ") || "-"}</p>
-                  <div style="background:#fffbeb; padding:10px; border:1px solid #fef3c7;">
-                    <b>📦 Produk SMM Terjual:</b><br/>${w.produkTerjual || "-"}
-                  </div>
-                  <p><b>Fase Tanam:</b> ${w.fase.join(", ") || "-"}</p>
-                  <p><b>Data Lapangan:</b> Petani (${w.jumlahPetani || "-"}), Kios (${w.jumlahKios || "-"}), Daya Beli (${w.dayaBeli || "-"})</p>
-                  <div style="background:#fef2f2; padding:10px; margin-top:10px;">
-                    <b>⚠️ Kendala:</b><br/>
-                    Utama: ${w.kendalaUtama || "-"}<br/>
-                    Distribusi: ${w.kendalaDistribusi || "-"}<br/>
-                    Kompetitor: ${w.kendalaKompetitor || "-"}<br/>
-                    Produk: ${w.kendalaProduk || "-"}
-                  </div>
-                  <div style="background:#eff6ff; padding:10px; margin-top:10px;">
-                    <b>🧪 Rekomendasi Produk:</b><br/>
-                    1. ${w.produk1} (${w.alasan1})<br/>
-                    2. ${w.produk2} (${w.alasan2})<br/>
-                    3. ${w.produk3} (${w.alasan3})
-                  </div>
-                </div>
-              `).join("")}
-            </body></html>`;
-
-            const win = window.open("", "_blank");
-            win.document.write(html); win.document.close(); win.print();
-            setTimeout(() => { document.title = originalTitle; }, 1000);
-          };
+        function WilayahCard({ data, index, onChange, onRemove, canRemove }) {
+          const [open, setOpen] = useState(true);
+          const set = (key) => (val) => onChange({ ...data, [key]: val });
+          const dbc = (d) => d === "Tinggi" ? "#16a34a" : d === "Sedang" ? "#d97706" : "#dc2626";
 
           return (
-            <div style={{ maxWidth: 640, margin: "0 auto", paddingBottom: 50 }}>
-              {/* Header Tab */}
-              <div style={{ background: "#15803d", color: "#fff", padding: "20px 20px 0" }}>
-                <h2 style={{ margin: "0 0 20px" }}>Market Analysis v3.3</h2>
-                <div style={{ display: "flex", gap: 10 }}>
-                  <button onClick={() => setTab("form")} style={{ flex: 1, padding: 12, border: "none", borderRadius: "10px 10px 0 0", background: tab === "form" ? "#f0fdf4" : "rgba(255,255,255,0.2)", color: tab === "form" ? "#15803d" : "#fff", fontWeight: "bold" }}>INPUT</button>
-                  <button onClick={() => setTab("rekap")} style={{ flex: 1, padding: 12, border: "none", borderRadius: "10px 10px 0 0", background: tab === "rekap" ? "#f0fdf4" : "rgba(255,255,255,0.2)", color: tab === "rekap" ? "#15803d" : "#fff", fontWeight: "bold" }}>REKAP</button>
+            <div style={{ border: "1.5px solid #e5e7eb", borderRadius: 12, marginBottom: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <div onClick={() => setOpen(o => !o)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: open ? "#f0fdf4" : "#f9fafb", cursor: "pointer", borderBottom: open ? "1.5px solid #d1fae5" : "none" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ background: "#16a34a", color: "#fff", borderRadius: 7, padding: "3px 10px", fontSize: 12, fontWeight: 800 }}>W{index + 1}</div>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: data.namaWilayah ? "#111827" : "#9ca3af" }}>
+                    {data.namaWilayah || "Belum diberi nama"}
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {canRemove && (
+                    <button onClick={e => { e.stopPropagation(); onRemove(); }}
+                      style={{ background: "#fee2e2", border: "none", borderRadius: 6, padding: "4px 9px", cursor: "pointer", color: "#dc2626", fontSize: 12, fontWeight: 700 }}>✕</button>
+                  )}
+                  <span style={{ color: "#6b7280", fontSize: 14 }}>{open ? "▲" : "▼"}</span>
                 </div>
               </div>
 
-              <div style={{ padding: 16 }}>
-                {tab === "form" ? (
-                  <div>
-                    <div className="card">
-                      <div style={{marginBottom:10}}>
-                        <label style={{fontSize:12, fontWeight:700, color: !form.nama ? "red" : "#374151"}}>Nama Sales *</label>
-                        <input className="input-style" value={form.nama} onChange={e => setForm({...form, nama: e.target.value})} placeholder="Masukkan Nama Anda" />
-                      </div>
-                      <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:10}}>
-                        <div>
-                            <label style={{fontSize:12, fontWeight:700}}>Kabupaten</label>
-                            <input className="input-style" value={form.kabupaten} onChange={e => setForm({...form, kabupaten: e.target.value})} placeholder="cth: Indramayu" />
-                        </div>
-                        <div>
-                            <label style={{fontSize:12, fontWeight:700}}>Periode</label>
-                            <input className="input-style" value={form.periode} onChange={e => setForm({...form, periode: e.target.value})} placeholder="cth: April 2026" />
-                        </div>
+              {open && (
+                <div style={{ padding: 16, background: "#fff" }}>
+                  <Field label="📍 Nama Kecamatan / Wilayah *" value={data.namaWilayah} onChange={set("namaWilayah")} placeholder="cth: Kec. Losarang, Desa Ranjeng" />
+
+                  <div style={{ background: "#f0fdf4", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#15803d", marginBottom: 10, letterSpacing: 0.8 }}>🌾 POTENSI WILAYAH</div>
+                    
+                    <div style={{ marginBottom: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>5 Komoditas Utama</label>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 8px" }}>
+                        {[1, 2, 3, 4, 5].map(n => (
+                          <input key={n} value={data[`p${n}`]} onChange={e => set(`p${n}`)(e.target.value)} placeholder={`Komoditas ${n}`}
+                            style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: "1.5px solid #d1d5db", fontSize: 12, marginBottom: 6, outline: "none", boxSizing: "border-box" }} />
+                        ))}
                       </div>
                     </div>
 
-                    {form.wilayahData.map((w, i) => (
-                      <div key={w._id} className="card">
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 15 }}>
-                          <Badge color="green">WILAYAH {i+1}</Badge>
-                          {form.wilayahData.length > 1 && (
-                            <button onClick={() => setForm({...form, wilayahData: form.wilayahData.filter((_, idx) => idx !== i)})} style={{ color: "red", border: "none", background: "none", fontSize: 12, fontWeight: "bold" }}>Hapus Wilayah</button>
-                          )}
-                        </div>
+                    <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "8px", border: "1px solid #fef3c7", marginBottom: "12px" }}>
+                      <Area label="📦 Produk SMM Terjual Periode Ini" value={data.produkTerjual} onChange={set("produkTerjual")} placeholder="Daftar produk SMM yang laku..." />
+                    </div>
 
-                        <div style={{marginBottom:15}}>
-                          <label style={{fontSize:12, fontWeight:700, color: !w.namaWilayah ? "red" : "#374151"}}>Nama Kecamatan / Desa *</label>
-                          <input className="input-style" value={w.namaWilayah} onChange={e => {
-                            const n = [...form.wilayahData]; n[i].namaWilayah = e.target.value; setForm({...form, wilayahData: n});
-                          }} placeholder="Masukkan Lokasi" />
-                        </div>
+                    <div style={{ marginBottom: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>Fase Tanam</label>
+                      <CheckGroup options={FASE} selected={data.fase} onChange={set("fase")} color="#0891b2" />
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                      <Field label="Petani Aktif (est.)" value={data.jumlahPetani} onChange={set("jumlahPetani")} placeholder="cth: 150 orang" />
+                      <Field label="Kios / Toko (est.)" value={data.jumlahKios} onChange={set("jumlahKios")} placeholder="cth: 8 kios" />
+                    </div>
+                    <div style={{ marginBottom: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>Daya Beli Petani</label>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {["Tinggi", "Sedang", "Rendah"].map(lvl => (
+                          <button key={lvl} onClick={() => set("dayaBeli")(lvl)} style={{
+                            padding: "5px 14px", borderRadius: 7, cursor: "pointer", fontSize: 12,
+                            border: `1.5px solid ${data.dayaBeli === lvl ? dbc(lvl) : "#d1d5db"}`,
+                            background: data.dayaBeli === lvl ? dbc(lvl) : "#fff",
+                            color: data.dayaBeli === lvl ? "#fff" : "#374151",
+                            fontWeight: data.dayaBeli === lvl ? 700 : 400
+                          }}>{lvl}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <Area label="Catatan Potensi" value={data.catatanWilayah} onChange={set("catatanWilayah")} placeholder="Kondisi umum..." />
+                  </div>
 
-                        <div style={{ background: "#f0fdf4", padding: 12, borderRadius: 10, marginBottom: 15 }}>
-                          <label style={{ fontSize: 11, fontWeight: 800, color: "#15803d", display: "block", marginBottom: 8 }}>🌾 5 KOMODITAS UTAMA</label>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                            {[1,2,3,4,5].map(num => (
-                              <input key={num} className="input-style" placeholder={`Potensi ${num}`} value={w[`p${num}`]} onChange={e => {
-                                const n = [...form.wilayahData]; n[i][`p${num}`] = e.target.value; setForm({...form, wilayahData: n});
-                              }} style={{fontSize:12}} />
-                            ))}
-                          </div>
-                        </div>
+                  <div style={{ background: "#fef2f2", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#b91c1c", marginBottom: 10, letterSpacing: 0.8 }}>⚠️ KENDALA</div>
+                    <Area label="Kendala Utama Petani" value={data.kendalaUtama} onChange={set("kendalaUtama")} placeholder="cth: Modal terbatas" />
+                    <Area label="Kendala Distribusi" value={data.kendalaDistribusi} onChange={set("kendalaDistribusi")} placeholder="cth: Jalan rusak" />
+                    <Area label="Kendala Kompetitor" value={data.kendalaKompetitor} onChange={set("kendalaKompetitor")} placeholder="cth: Merek A lebih murah" />
+                    <Area label="Kendala Produk" value={data.kendalaProduk} onChange={set("kendalaProduk")} placeholder="cth: Stok kosong" />
+                  </div>
 
-                        <div style={{ background: "#fffbeb", padding: 12, borderRadius: 10, border: "1px solid #fef3c7", marginBottom: 15 }}>
-                           <label style={{ fontSize: 12, fontWeight: 700 }}>📦 PRODUK SMM TERJUAL</label>
-                           <textarea className="input-style" rows={2} value={w.produkTerjual} onChange={e => {
-                             const n = [...form.wilayahData]; n[i].produkTerjual = e.target.value; setForm({...form, wilayahData: n});
-                           }} style={{marginTop:5}} />
-                        </div>
-
-                        <div style={{marginBottom:15}}>
-                          <label style={{fontSize:12, fontWeight:700, display:"block", marginBottom:5}}>Fase Tanam</label>
-                          <CheckGroup options={FASE} selected={w.fase} onChange={v => {
-                            const n = [...form.wilayahData]; n[i].fase = v; setForm({...form, wilayahData: n});
-                          }} />
-                        </div>
-
-                        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:15}}>
-                          <div>
-                            <label style={{fontSize:12, fontWeight:700}}>Estimasi Petani</label>
-                            <input className="input-style" value={w.jumlahPetani} onChange={e => {
-                              const n = [...form.wilayahData]; n[i].jumlahPetani = e.target.value; setForm({...form, wilayahData: n});
-                            }} />
-                          </div>
-                          <div>
-                            <label style={{fontSize:12, fontWeight:700}}>Daya Beli</label>
-                            <select className="input-style" value={w.dayaBeli} onChange={e => {
-                              const n = [...form.wilayahData]; n[i].dayaBeli = e.target.value; setForm({...form, wilayahData: n});
-                            }}>
-                              <option value="">- Pilih -</option>
-                              <option value="Tinggi">Tinggi</option>
-                              <option value="Sedang">Sedang</option>
-                              <option value="Rendah">Rendah</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div style={{ background: "#fef2f2", padding: 12, borderRadius: 10, marginBottom: 15 }}>
-                          <label style={{ fontSize: 11, fontWeight: 800, color: "#b91c1c", display: "block", marginBottom: 8 }}>⚠️ KENDALA LAPANGAN</label>
-                          <input className="input-style" placeholder="Kendala Utama" value={w.kendalaUtama} onChange={e => {
-                            const n = [...form.wilayahData]; n[i].kendalaUtama = e.target.value; setForm({...form, wilayahData: n});
-                          }} style={{marginBottom:8}} />
-                          <input className="input-style" placeholder="Kendala Kompetitor" value={w.kendalaKompetitor} onChange={e => {
-                            const n = [...form.wilayahData]; n[i].kendalaKompetitor = e.target.value; setForm({...form, wilayahData: n});
-                          }} />
-                        </div>
-
-                        <div style={{ background: "#eff6ff", padding: 12, borderRadius: 10 }}>
-                          <label style={{ fontSize: 11, fontWeight: 800, color: "#1d4ed8", display: "block", marginBottom: 8 }}>🧪 REKOMENDASI PRODUK</label>
-                          {[1,2,3].map(num => (
-                            <div key={num} style={{display:"grid", gridTemplateColumns:"1fr 1.5fr", gap:5, marginBottom:5}}>
-                               <input className="input-style" placeholder={`Produk ${num}`} value={w[`produk${num}`]} onChange={e => {
-                                 const n = [...form.wilayahData]; n[i][`produk${num}`] = e.target.value; setForm({...form, wilayahData: n});
-                               }} style={{fontSize:11}} />
-                               <input className="input-style" placeholder="Alasan" value={w[`alasan${num}`]} onChange={e => {
-                                 const n = [...form.wilayahData]; n[i][`alasan${num}`] = e.target.value; setForm({...form, wilayahData: n});
-                               }} style={{fontSize:11}} />
-                            </div>
-                          ))}
-                        </div>
+                  <div style={{ background: "#eff6ff", borderRadius: 8, padding: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#1d4ed8", marginBottom: 10, letterSpacing: 0.8 }}>🧪 REKOMENDASI PRODUK</div>
+                    {[1, 2, 3].map(n => (
+                      <div key={n} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 6 }}>
+                        <Field label={`Produk Prioritas ${n}`} value={data[`produk${n}`]} onChange={set(`produk${n}`)} placeholder="Nama produk" />
+                        <Field label="Alasan" value={data[`alasan${n}`]} onChange={set(`alasan${n}`)} placeholder="Kenapa cocok?" />
                       </div>
                     ))}
+                    <Area label="💡 Kebutuhan Belum Ada" value={data.kebutuhanBelumAda} onChange={set("kebutuhanBelumAda")} placeholder="cth: Perlu pupuk granul" />
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
 
-                    <button onClick={() => setForm({...form, wilayahData: [...form.wilayahData, emptyWilayah()]})} style={{ width: "100%", padding: 12, marginBottom: 15, borderRadius: 10, border: "2px dashed #16a34a", color: "#16a34a", background: "none", fontWeight: "bold" }}>+ Tambah Wilayah</button>
-                    <button className="btn-primary" onClick={handleSave} disabled={isInvalid}>💾 SIMPAN LAPORAN KE REKAP</button>
+        function FormView({ onSave }) {
+          const [form, setForm] = useState(emptyForm());
+          const [saved, setSaved] = useState(false);
+          const [saving, setSaving] = useState(false);
+
+          const setField = (key) => (val) => setForm(f => ({ ...f, [key]: val }));
+          const updateWilayah = (i, val) => { const n = [...form.wilayahData]; n[i] = val; setForm(f => ({ ...f, wilayahData: n })); };
+          const addWilayah = () => setForm(f => ({ ...f, wilayahData: [...f.wilayahData, emptyWilayah()] }));
+          const removeWilayah = (i) => setForm(f => ({ ...f, wilayahData: f.wilayahData.filter((_, idx) => idx !== i) }));
+
+          const handleSave = async () => {
+            if (!form.nama.trim()) return alert("Nama sales wajib diisi!");
+            const valid = form.wilayahData.filter(w => w.namaWilayah.trim());
+            if (valid.length === 0) return alert("Minimal satu wilayah wajib diisi!");
+            setSaving(true);
+            try {
+              const entry = { ...form, wilayahData: valid, id: Date.now(), createdAt: new Date().toISOString() };
+              const list = await loadEntries();
+              list.push(entry);
+              await saveEntries(list);
+              setSaved(true);
+              setForm(emptyForm());
+              onSave();
+              setTimeout(() => setSaved(false), 3000);
+            } catch (e) { alert("Gagal menyimpan: " + e.message); }
+            finally { setSaving(false); }
+          };
+
+          return (
+            <div>
+              {saved && <div style={{ background: "#d1fae5", border: "1px solid #6ee7b7", borderRadius: 10, padding: "12px 16px", marginBottom: 16, color: "#065f46", fontWeight: 600, textAlign: "center" }}>✅ Berhasil disimpan!</div>}
+              <div style={{ background: "#fff", borderRadius: 12, padding: 16, marginBottom: 16, border: "1px solid #e5e7eb" }}>
+                <Field label="Nama Sales *" value={form.nama} onChange={setField("nama")} placeholder="cth: Budi Santoso" />
+                <Field label="Periode" value={form.periode} onChange={setField("periode")} placeholder="cth: April 2026" />
+                <Field label="Kabupaten / Kota" value={form.kabupaten} onChange={setField("kabupaten")} placeholder="cth: Indramayu" />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                <div style={{ fontWeight: 700 }}>Data per Wilayah ({form.wilayahData.length})</div>
+                <button onClick={addWilayah} style={{ padding: "7px 14px", borderRadius: 8, border: "1.5px solid #16a34a", background: "#f0fdf4", color: "#16a34a", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>+ Tambah</button>
+              </div>
+              {form.wilayahData.map((w, i) => <WilayahCard key={w._id} data={w} index={i} onChange={(val) => updateWilayah(i, val)} onRemove={() => removeWilayah(i)} canRemove={form.wilayahData.length > 1} />)}
+              <button onClick={handleSave} disabled={saving} style={{ width: "100%", padding: "14px", borderRadius: 10, background: saving ? "#86efac" : "linear-gradient(135deg,#16a34a,#15803d)", color: "#fff", fontWeight: 700, border: "none", cursor: "pointer" }}>{saving ? "⏳ Menyimpan..." : "💾 Simpan Laporan"}</button>
+            </div>
+          );
+        }
+
+        function buildPdfHtml(e) {
+          const tgl = new Date(e.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+          const wilayahBlocks = (e.wilayahData || []).map((w, i) => {
+            const komoditas = [w.p1, w.p2, w.p3, w.p4, w.p5].filter(x => x).join(", ") || "-";
+            return `<div style="margin-bottom:20px; border:1px solid #d1fae5; border-radius:10px; padding:15px; page-break-inside:avoid;">
+              <h3 style="color:#15803d; margin-top:0;">W${i+1} - ${w.namaWilayah}</h3>
+              <p><b>Komoditas:</b> ${komoditas}</p>
+              <p style="background:#fffbeb; padding:8px; border:1px solid #fef3c7;"><b>Produk Terjual:</b> ${w.produkTerjual || "-"}</p>
+              <p><b>Kendala:</b> ${w.kendalaUtama || "-"}</p>
+              <p><b>Rekomendasi:</b> ${[w.produk1, w.produk2, w.produk3].filter(x=>x).join(", ") || "-"}</p>
+            </div>`;
+          }).join("");
+
+          return `<html><head><title>SMM Report</title></head><body style="font-family:sans-serif; padding:30px;">
+            <div style="background:#15803d; color:#fff; padding:20px; border-radius:10px; margin-bottom:20px;">
+              <h1>${e.nama}</h1>
+              <p>${e.kabupaten} · ${e.periode} · ${tgl}</p>
+            </div>
+            ${wilayahBlocks}
+          </body></html>`;
+        }
+
+        function exportToPdf(e) {
+          const win = window.open("", "_blank");
+          win.document.write(buildPdfHtml(e)); win.document.close(); win.print();
+        }
+
+        function WilayahDetail({ w }) {
+          const [open, setOpen] = useState(false);
+          const komoditasArr = [w.p1, w.p2, w.p3, w.p4, w.p5].filter(x => x);
+          return (
+            <div style={{ border: "1px solid #e5e7eb", borderRadius: 10, marginBottom: 10, overflow: "hidden" }}>
+              <div onClick={() => setOpen(!open)} style={{ display: "flex", justifyContent: "space-between", padding: 12, cursor: "pointer", background: "#f9fafb" }}>
+                <span style={{ fontWeight: 700 }}>📍 {w.namaWilayah}</span>
+                <span>{open ? "▲" : "▼"}</span>
+              </div>
+              {open && (
+                <div style={{ padding: 14, background: "#fff" }}>
+                  <div style={{ marginBottom: 8 }}>{komoditasArr.map(k => <Badge key={k} color="green">{k}</Badge>)}</div>
+                  {w.produkTerjual && <div style={{ background: "#fffbeb", padding: 8, fontSize: 12, border: "1px solid #fef3c7", marginBottom: 8 }}><b>Terjual:</b> {w.produkTerjual}</div>}
+                  <div style={{ fontSize: 12, color: "#374151" }}><b>Kendala:</b> {w.kendalaUtama || "-"}</div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        function RekapView({ refresh }) {
+          const [entries, setEntries] = useState([]);
+          const [selected, setSelected] = useState(null);
+          useEffect(() => { loadEntries().then(setEntries); }, [refresh]);
+
+          if (selected) {
+            const e = entries.find(x => x.id === selected);
+            return (
+              <div>
+                <button onClick={() => setSelected(null)} style={{ padding: "8px 14px", marginBottom: 16, cursor: "pointer" }}>← Kembali</button>
+                <div style={{ background: "#15803d", color: "#fff", padding: 16, borderRadius: 12, marginBottom: 16 }}>
+                  <h2 style={{ margin: 0 }}>{e.nama}</h2>
+                  <p>{e.kabupaten} · {e.periode}</p>
+                </div>
+                <button onClick={() => exportToPdf(e)} style={{ width: "100%", padding: 12, background: "#1e40af", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", marginBottom: 16 }}>📄 Export PDF</button>
+                {e.wilayahData.map((w, i) => <WilayahDetail key={i} w={w} />)}
+              </div>
+            );
+          }
+
+          return (
+            <div>
+              {entries.map(e => (
+                <div key={e.id} onClick={() => setSelected(e.id)} style={{ background: "#fff", padding: 16, borderRadius: 12, border: "1px solid #e5e7eb", marginBottom: 10, cursor: "pointer" }}>
+                  <div style={{ fontWeight: 700 }}>{e.nama}</div>
+                  <div style={{ fontSize: 12, color: "#6b7280" }}>{e.kabupaten} · {e.wilayahData.length} wilayah</div>
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        function App() {
+          const [tab, setTab] = useState("form");
+          const [refresh, setRefresh] = useState(0);
+          return (
+            <div style={{ minHeight: "100vh", background: "#f0fdf4" }}>
+              <div style={{ background: "#15803d", padding: "20px 20px 0", color: "#fff" }}>
+                <div style={{ maxWidth: 640, margin: "0 auto" }}>
+                  <div style={{ fontSize: 20, fontWeight: 800 }}>SMM Market Analysis</div>
+                  <div style={{ display: "flex", gap: 10, marginTop: 15 }}>
+                    <button onClick={() => setTab("form")} style={{ flex: 1, padding: 10, background: tab === "form" ? "#fff" : "rgba(255,255,255,0.2)", color: tab === "form" ? "#15803d" : "#fff", border: "none", borderRadius: "8px 8px 0 0", cursor: "pointer", fontWeight: "bold" }}>INPUT</button>
+                    <button onClick={() => setTab("rekap")} style={{ flex: 1, padding: 10, background: tab === "rekap" ? "#fff" : "rgba(255,255,255,0.2)", color: tab === "rekap" ? "#15803d" : "#fff", border: "none", borderRadius: "8px 8px 0 0", cursor: "pointer", fontWeight: "bold" }}>REKAP</button>
                   </div>
-                ) : (
-                  <div>
-                    {entries.length === 0 ? <div style={{textAlign:"center", padding:50, color:"#9ca3af"}}>Belum ada laporan tersimpan</div> : 
-                    entries.map(e => (
-                      <div key={e.id} className="card" style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-                        <div>
-                          <div style={{fontWeight:800}}>{e.nama}</div>
-                          <div style={{fontSize:12, color:"#6b7280"}}>{e.kabupaten} · {e.periode}</div>
-                          <button onClick={() => exportPdf(e)} style={{marginTop:10, padding:"6px 12px", background:"#1e40af", color:"#fff", border:"none", borderRadius:6, fontSize:11, fontWeight:"bold"}}>📄 PDF</button>
-                        </div>
-                        <button onClick={() => deleteEntry(e.id)} style={{background:"#fee2e2", color:"#dc2626", border:"none", padding:"8px 12px", borderRadius:8, fontSize:11, fontWeight:"bold"}}>Hapus</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                </div>
+              </div>
+              <div style={{ maxWidth: 640, margin: "0 auto", padding: 16 }}>
+                {tab === "form" ? <FormView onSave={() => { setRefresh(r => r + 1); setTab("rekap"); }} /> : <RekapView refresh={refresh} />}
               </div>
             </div>
           );
