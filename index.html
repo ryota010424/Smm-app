@@ -10,31 +10,28 @@
     <style>
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #f0fdf4; color: #111827; padding-bottom: 60px; }
         .card { background: white; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 16px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 15px; }
-        .input-box { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #d1d5db; font-size: 14px; box-sizing: border-box; outline: none; margin-bottom: 10px; display: block; }
-        .label-text { font-size: 12px; font-weight: 700; color: #374151; display: block; margin-bottom: 4px; }
+        .input-box { width: 100%; padding: 7px 11px; border-radius: 7px; border: 1.5px solid #d1d5db; font-size: 13px; outline: none; box-sizing: border-box; margin-bottom: 8px; }
+        .label-text { font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 3px; }
+        .btn-green { background: linear-gradient(135deg,#16a34a,#15803d); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
     <div id="root"></div>
     <script type="text/babel">
         const { useState, useEffect } = React;
-        const STORAGE_KEY = "smm-market-v3-updated";
+        const FASE = ["Pengolahan Lahan", "Vegetatif", "Generatif", "Panen"];
+        const STORAGE_KEY = "smm-market-v3-final";
 
-        // --- DATA STRUCTURE ---
         const emptyWilayah = () => ({
             _id: Date.now() + Math.random(),
             namaWilayah: "",
-            // Mengganti checkbox dengan 5 kolom manual
-            p1: "", p2: "", p3: "", p4: "", p5: "", 
-            produkTerjual: "", // Kolom Tambahan Baru
-            jumlahPetani: "",
-            jumlahKios: "",
-            dayaBeli: "",
-            catatanWilayah: "",
-            kendalaUtama: "",
-            kendalaDistribusi: "",
-            kendalaKompetitor: "",
-            kendalaProduk: "",
+            // GANTI: 5 Kolom Potensi Manual
+            p1: "", p2: "", p3: "", p4: "", p5: "",
+            // TAMBAH: Kolom Produk Terjual
+            produkTerjual: "",
+            fase: [],
+            jumlahPetani: "", jumlahKios: "", dayaBeli: "", catatanWilayah: "",
+            kendalaUtama: "", kendalaDistribusi: "", kendalaKompetitor: "", kendalaProduk: "",
             produk1: "", alasan1: "", produk2: "", alasan2: "", produk3: "", alasan3: "",
             kebutuhanBelumAda: ""
         });
@@ -44,32 +41,31 @@
             wilayahData: [emptyWilayah()]
         });
 
-        // --- PDF ENGINE (Tetap Sesuai Struktur v3) ---
+        // --- UI COMPONENTS ---
+        function Badge({ children, color = "green" }) {
+            const bg = { green: "#d1fae5", blue: "#dbeafe", red: "#fee2e2", yellow: "#fef3c7" };
+            const fg = { green: "#065f46", blue: "#1e40af", red: "#991b1b", yellow: "#92400e" };
+            return <span style={{ padding: "2px 8px", borderRadius: 12, fontSize: 11, fontWeight: 600, background: bg[color], color: fg[color], marginRight: 4 }}>{children}</span>;
+        }
+
+        // --- PDF ENGINE ---
         function exportToPdf(e) {
             const tgl = new Date(e.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
-            const wilayahBlocks = e.wilayahData.map((w, i) => {
-                const potensi = [w.p1, w.p2, w.p3, w.p4, w.p5].filter(x => x).join(", ");
-                return `
-                <div style="margin-bottom:20px; border:1.5px solid #d1fae5; border-radius:10px; overflow:hidden; page-break-inside:avoid;">
-                    <div style="background:#15803d; color:#fff; padding:10px; font-weight:800;">W${i+1} - ${w.namaWilayah}</div>
+            const wilayahBlocks = e.wilayahData.map((w, i) => `
+                <div style="margin-bottom:20px; border:1px solid #15803d; border-radius:10px; overflow:hidden; page-break-inside:avoid;">
+                    <div style="background:#15803d; color:#fff; padding:8px 15px; font-weight:800;">W${i+1} - ${w.namaWilayah}</div>
                     <div style="padding:15px; font-size:12px;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <tr><td style="width:120px; font-weight:bold; color:#15803d;">Potensi:</td><td>${potensi || "-"}</td></tr>
-                            <tr style="background:#fffbeb;"><td style="font-weight:bold; color:#b45309;">Produk Terjual:</td><td>${w.produkTerjual || "-"}</td></tr>
-                            <tr><td style="font-weight:bold;">Petani/Kios:</td><td>${w.jumlahPetani || "-"} / ${w.jumlahKios || "-"}</td></tr>
-                            <tr><td style="font-weight:bold;">Daya Beli:</td><td>${w.dayaBeli || "-"}</td></tr>
-                            <tr style="background:#fef2f2;"><td style="font-weight:bold; color:#b91c1c;">Kendala:</td><td>${w.kendalaUtama || "-"}</td></tr>
-                        </table>
+                        <p><b>Potensi:</b> ${[w.p1, w.p2, w.p3, w.p4, w.p5].filter(x=>x).join(", ") || "-"}</p>
+                        <p style="color:#b45309;"><b>Produk Terjual:</b> ${w.produkTerjual || "-"}</p>
+                        <p><b>Kendala:</b> ${w.kendalaUtama || "-"}</p>
+                        <p><b>Rekomendasi:</b> ${[w.produk1, w.produk2, w.produk3].filter(x=>x).join(", ") || "-"}</p>
                     </div>
-                </div>`;
-            }).join("");
+                </div>
+            `).join("");
 
             const html = `<html><body style="font-family:sans-serif; padding:30px;">
-                <div style="text-align:center; border-bottom:2px solid #15803d; padding-bottom:10px; margin-bottom:20px;">
-                    <h2 style="margin:0; color:#15803d;">MARKET ANALYSIS REPORT</h2>
-                    <p style="margin:5px 0;">CV. SUGIH MEKAR MANDIRI</p>
-                </div>
-                <p><b>Sales:</b> ${e.nama} | <b>Periode:</b> ${e.periode} | <b>Tgl:</b> ${tgl}</p>
+                <h2 style="text-align:center; color:#15803d; border-bottom:2px solid #15803d; padding-bottom:10px;">LAPORAN ANALISIS PASAR SMM</h2>
+                <p><b>Sales:</b> ${e.nama} | <b>Kabupaten:</b> ${e.kabupaten} | <b>Periode:</b> ${e.periode}</p>
                 ${wilayahBlocks}
             </body></html>`;
 
@@ -77,7 +73,6 @@
             win.document.write(html); win.document.close(); win.print();
         }
 
-        // --- COMPONENTS ---
         function App() {
             const [tab, setTab] = useState("form");
             const [form, setForm] = useState(emptyForm());
@@ -93,20 +88,21 @@
                 const newList = [{ ...form, id: Date.now(), createdAt: new Date().toISOString() }, ...entries];
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
                 setEntries(newList); setForm(emptyForm()); setTab("rekap");
+                alert("Data Berhasil Disimpan!");
             };
 
             return (
                 <div style={{ maxWidth: 640, margin: "0 auto" }}>
-                    <div style={{ background: "linear-gradient(135deg,#15803d,#16a34a)", padding: "20px", color: "#fff", textAlign: "center", borderRadius: "0 0 20px 20px" }}>
-                        <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1.5 }}>CV. SUGIH MEKAR MANDIRI</div>
-                        <h2 style={{ margin: "5px 0" }}>Analisis Potensi Pasar</h2>
+                    <div style={{ background: "#15803d", color: "#fff", padding: "20px", textAlign: "center", borderRadius: "0 0 15px 15px" }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1 }}>CV. SUGIH MEKAR MANDIRI</div>
+                        <h2 style={{ margin: "5px 0" }}>Market Analysis v3.1</h2>
                         <div style={{ display: "flex", gap: 10, marginTop: 15 }}>
-                            <button onClick={() => setTab("form")} style={{ flex: 1, padding: "10px", borderRadius: 8, border: "none", fontWeight: 700, background: tab === "form" ? "#fff" : "rgba(255,255,255,0.2)", color: tab === "form" ? "#15803d" : "#fff" }}>📝 INPUT</button>
-                            <button onClick={() => setTab("rekap")} style={{ flex: 1, padding: "10px", borderRadius: 8, border: "none", fontWeight: 700, background: tab === "rekap" ? "#fff" : "rgba(255,255,255,0.2)", color: tab === "rekap" ? "#15803d" : "#fff" }}>📊 REKAP</button>
+                            <button onClick={() => setTab("form")} style={{ flex: 1, padding: 10, border: "none", borderRadius: 8, background: tab === "form" ? "#fff" : "rgba(255,255,255,0.2)", color: tab === "form" ? "#15803d" : "#fff", fontWeight: "bold" }}>📝 INPUT</button>
+                            <button onClick={() => setTab("rekap")} style={{ flex: 1, padding: 10, border: "none", borderRadius: 8, background: tab === "rekap" ? "#fff" : "rgba(255,255,255,0.2)", color: tab === "rekap" ? "#15803d" : "#fff", fontWeight: "bold" }}>📊 REKAP</button>
                         </div>
                     </div>
 
-                    <div style={{ padding: "15px" }}>
+                    <div style={{ padding: 15 }}>
                         {tab === "form" ? (
                             <div>
                                 <div className="card">
@@ -118,17 +114,21 @@
 
                                 {form.wilayahData.map((w, i) => (
                                     <div key={w._id} className="card">
-                                        <div style={{fontWeight:800, color:"#15803d", marginBottom:10}}>📍 WILAYAH {i+1}</div>
+                                        <div style={{fontWeight:800, color:"#15803d", marginBottom:10, display:"flex", justifyContent:"space-between"}}>
+                                            <span>📍 WILAYAH {i+1}</span>
+                                            {form.wilayahData.length > 1 && <span onClick={() => setForm({...form, wilayahData: form.wilayahData.filter((_,idx)=>idx!==i)})} style={{color:"red", cursor:"pointer", fontSize:12}}>Hapus</span>}
+                                        </div>
+                                        
                                         <input className="input-box" value={w.namaWilayah} onChange={e => {
                                             const nd = [...form.wilayahData]; nd[i].namaWilayah = e.target.value; setForm({...form, wilayahData: nd});
-                                        }} placeholder="Nama Kecamatan/Desa *" />
+                                        }} placeholder="Nama Kecamatan / Desa *" />
 
-                                        {/* 5 KOLOM POTENSI (Ketik Manual) */}
-                                        <div style={{background:"#f0fdf4", padding:10, borderRadius:8, marginBottom:10}}>
+                                        {/* 5 KOLOM POTENSI MANUAL */}
+                                        <div style={{background:"#f0fdf4", padding:12, borderRadius:8, marginBottom:10}}>
                                             <span className="label-text" style={{color:"#15803d"}}>🌾 5 POTENSI KOMODITAS</span>
-                                            <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:5}}>
+                                            <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:6}}>
                                                 {[1,2,3,4,5].map(n => (
-                                                    <input key={n} className="input-box" style={{marginBottom:4, fontSize:12}} placeholder={`Potensi ${n}`} value={w[`p${n}`]} onChange={e => {
+                                                    <input key={n} className="input-box" style={{fontSize:12, marginBottom:4}} placeholder={`Potensi ${n}`} value={w[`p${n}`]} onChange={e => {
                                                         const nd = [...form.wilayahData]; nd[i][`p${n}`] = e.target.value; setForm({...form, wilayahData: nd});
                                                     }} />
                                                 ))}
@@ -136,38 +136,53 @@
                                         </div>
 
                                         {/* KOLOM PRODUK TERJUAL */}
-                                        <div style={{background:"#fffbeb", padding:10, borderRadius:8, marginBottom:10}}>
-                                            <span className="label-text" style={{color:"#b45309"}}>📦 PRODUK SMM TERJUAL</span>
+                                        <div style={{background:"#fffbeb", padding:12, borderRadius:8, marginBottom:10}}>
+                                            <span className="label-text" style={{color:"#b45309"}}>📦 PRODUK SMM TERJUAL PERIODE INI</span>
                                             <textarea className="input-box" rows="2" value={w.produkTerjual} onChange={e => {
                                                 const nd = [...form.wilayahData]; nd[i].produkTerjual = e.target.value; setForm({...form, wilayahData: nd});
-                                            }} placeholder="Tulis produk yang sudah terjual di sini..." />
+                                            }} placeholder="Daftar produk yang laku..." />
                                         </div>
 
-                                        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:10}}>
-                                            <input className="input-box" value={w.jumlahPetani} onChange={e => {
-                                                const nd = [...form.wilayahData]; nd[i].jumlahPetani = e.target.value; setForm({...form, wilayahData: nd});
-                                            }} placeholder="Est. Jumlah Petani" />
-                                            <input className="input-box" value={w.kendalaUtama} onChange={e => {
+                                        {/* KENDALA (STRUKTUR LENGKAP v3) */}
+                                        <div style={{background:"#fef2f2", padding:12, borderRadius:8, marginBottom:10}}>
+                                            <span className="label-text" style={{color:"#b91c1c"}}>⚠️ KENDALA & MASALAH</span>
+                                            <input className="input-box" placeholder="Kendala Utama Petani" value={w.kendalaUtama} onChange={e => {
                                                 const nd = [...form.wilayahData]; nd[i].kendalaUtama = e.target.value; setForm({...form, wilayahData: nd});
-                                            }} placeholder="Kendala Utama" />
+                                            }} />
+                                            <input className="input-box" placeholder="Kendala Kompetitor" value={w.kendalaKompetitor} onChange={e => {
+                                                const nd = [...form.wilayahData]; nd[i].kendalaKompetitor = e.target.value; setForm({...form, wilayahData: nd});
+                                            }} />
+                                        </div>
+
+                                        {/* REKOMENDASI (STRUKTUR LENGKAP v3) */}
+                                        <div style={{background:"#eff6ff", padding:12, borderRadius:8}}>
+                                            <span className="label-text" style={{color:"#1d4ed8"}}>🧪 REKOMENDASI PRODUK</span>
+                                            <input className="input-box" placeholder="Produk 1" value={w.produk1} onChange={e => {
+                                                const nd = [...form.wilayahData]; nd[i].produk1 = e.target.value; setForm({...form, wilayahData: nd});
+                                            }} />
+                                            <input className="input-box" placeholder="Produk 2" value={w.produk2} onChange={e => {
+                                                const nd = [...form.wilayahData]; nd[i].produk2 = e.target.value; setForm({...form, wilayahData: nd});
+                                            }} />
                                         </div>
                                     </div>
                                 ))}
 
                                 <button onClick={() => setForm({...form, wilayahData: [...form.wilayahData, emptyWilayah()]})} style={{ width: "100%", padding: 12, marginBottom: 15, borderRadius: 10, border: "2px dashed #16a34a", color: "#16a34a", background: "white", fontWeight: 700 }}>+ Tambah Wilayah</button>
-                                <button onClick={handleSave} style={{ width: "100%", padding: 15, borderRadius: 10, background: "#16a34a", color: "#fff", border: "none", fontWeight: 800, fontSize: 16 }}>💾 SIMPAN LAPORAN</button>
+                                <button onClick={handleSave} className="btn-green">💾 SIMPAN LAPORAN</button>
                             </div>
                         ) : (
                             <div>
                                 {entries.map(e => (
                                     <div key={e.id} className="card">
                                         <div style={{fontWeight:800}}>{e.nama} - {e.periode}</div>
-                                        <div style={{fontSize:12, color:"#666"}}>{e.wilayahData.length} Wilayah Tercatat</div>
-                                        <button onClick={() => exportToPdf(e)} style={{width:"100%", padding:10, marginTop:10, borderRadius:8, background:"#1e40af", color:"#fff", border:"none", fontWeight:700}}>📄 Export PDF</button>
+                                        <div style={{fontSize:12, color:"#666", marginBottom:10}}>{e.wilayahData.length} Wilayah Tercatat</div>
+                                        <button onClick={() => exportToPdf(e)} style={{width:"100%", padding:10, borderRadius:8, background:"#1e40af", color:"#fff", border:"none", fontWeight:700}}>📄 EXPORT PDF</button>
                                         <button onClick={() => {
-                                            const filtered = entries.filter(x => x.id !== e.id);
-                                            setEntries(filtered); localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-                                        }} style={{width:"100%", padding:5, marginTop:5, background:"none", color:"red", border:"none", fontSize:11}}>Hapus</button>
+                                            if(confirm("Hapus?")) {
+                                                const filtered = entries.filter(x => x.id !== e.id);
+                                                setEntries(filtered); localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+                                            }
+                                        }} style={{width:"100%", padding:5, marginTop:5, background:"none", color:"red", border:"none", fontSize:11}}>Hapus Laporan</button>
                                     </div>
                                 ))}
                             </div>
